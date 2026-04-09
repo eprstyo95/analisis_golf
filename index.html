@@ -1088,5 +1088,360 @@ function resetFilters() {
 
 applyFilters();
 </script>
+  <!-- ══════════════════════════════════════════════════════
+  CARA PAKAI: Tempel blok ini tepat sebelum </body>
+  di file HTML original. JANGAN edit script yang lama.
+  ══════════════════════════════════════════════════════ -->
+<style>
+.btn-cek{background:rgba(91,168,208,0.15);border:1px solid rgba(91,168,208,0.3);border-radius:5px;padding:4px 10px;font-family:'DM Mono',monospace;font-size:9px;color:#5ba8d0;cursor:pointer;white-space:nowrap}
+.btn-cek:hover{background:rgba(91,168,208,0.28)}
+.btn-cek:disabled{opacity:.45;cursor:not-allowed}
+.fr-box{font-family:'DM Mono',monospace;font-size:9px;line-height:1.55}
+.fr-red{color:#ff4d4d;font-weight:700}
+.fr-yel{color:#e8a030;font-weight:700}
+.fr-grn{color:#4db87a;font-weight:700}
+.fr-dim{color:rgba(248,244,232,0.45)}
+.fr-na {color:rgba(248,244,232,0.25);font-style:italic}
+</style>
+
+<script>
+(function() {
+// ── 1. Harga referensi global (USD) ──────────────────────────────
+const GPDB = [
+  // TaylorMade Drivers
+  {kw:['taylormade','qi35','driver'],p:599,s:'taylormade.com'},
+  {kw:['taylormade','qi4d','driver'],p:549,s:'taylormade.com'},
+  {kw:['taylormade','qi10','driver'],p:499,s:'golfgalaxy.com'},
+  {kw:['taylormade','stealth 2','driver'],p:429,s:'golfgalaxy.com'},
+  {kw:['taylormade','stealth','driver'],p:399,s:'golfgalaxy.com'},
+  // TaylorMade Irons
+  {kw:['taylormade','p790'],p:1499,s:'taylormade.com'},
+  {kw:['taylormade','p770'],p:1299,s:'taylormade.com'},
+  {kw:['taylormade','p7cb'],p:1299,s:'taylormade.com'},
+  {kw:['taylormade','p8cb'],p:1299,s:'taylormade.com'},
+  {kw:['taylormade','p7mb'],p:1199,s:'taylormade.com'},
+  {kw:['taylormade','qi35','iron'],p:999,s:'taylormade.com'},
+  {kw:['taylormade','qi max','iron'],p:949,s:'taylormade.com'},
+  {kw:['taylormade','qi','iron'],p:799,s:'golfgalaxy.com'},
+  {kw:['taylormade','stealth','iron'],p:699,s:'golfgalaxy.com'},
+  // TaylorMade Wedge & Putter
+  {kw:['taylormade','milled grind 5','wedge'],p:179,s:'taylormade.com'},
+  {kw:['taylormade','milled grind 4','wedge'],p:159,s:'taylormade.com'},
+  {kw:['taylormade','milled grind hi-toe','wedge'],p:179,s:'taylormade.com'},
+  {kw:['taylormade','spider tour','putter'],p:349,s:'taylormade.com'},
+  {kw:['taylormade','spider gt','putter'],p:249,s:'taylormade.com'},
+  {kw:['taylormade','tp black','putter'],p:199,s:'taylormade.com'},
+  // Callaway Drivers
+  {kw:['callaway','quantum max fast','driver'],p:599,s:'callaway.com'},
+  {kw:['callaway','quantum max','driver'],p:549,s:'callaway.com'},
+  {kw:['callaway','elyte triple diamond','driver'],p:549,s:'callaway.com'},
+  {kw:['callaway','elyte','driver'],p:499,s:'callaway.com'},
+  {kw:['callaway','paradym ai smoke','driver'],p:499,s:'callaway.com'},
+  {kw:['callaway','paradym','driver'],p:449,s:'callaway.com'},
+  {kw:['callaway','rogue st','driver'],p:349,s:'golfgalaxy.com'},
+  // Callaway Irons
+  {kw:['callaway','quantum max','iron'],p:999,s:'callaway.com'},
+  {kw:['callaway','elyte','iron'],p:899,s:'callaway.com'},
+  {kw:['callaway','paradym ai smoke','iron'],p:999,s:'callaway.com'},
+  {kw:['callaway','apex ai300','iron'],p:1299,s:'callaway.com'},
+  {kw:['callaway','apex','iron'],p:1099,s:'callaway.com'},
+  {kw:['callaway','rogue st','iron'],p:749,s:'golfgalaxy.com'},
+  // Callaway Wedge / Odyssey Putter
+  {kw:['callaway','opus','wedge'],p:159,s:'callaway.com'},
+  {kw:['callaway','jaws','wedge'],p:169,s:'callaway.com'},
+  {kw:['odyssey','ai-dual square 2','putter'],p:329,s:'callaway.com'},
+  {kw:['odyssey','ai-dual','putter'],p:299,s:'callaway.com'},
+  {kw:['odyssey','ai-one milled','putter'],p:399,s:'callaway.com'},
+  {kw:['odyssey','ai-one','putter'],p:279,s:'callaway.com'},
+  {kw:['odyssey','dfx','putter'],p:149,s:'callaway.com'},
+  // Ping Drivers
+  {kw:['ping','g440 k','driver'],p:649,s:'ping.com'},
+  {kw:['ping','g440','driver'],p:599,s:'ping.com'},
+  {kw:['ping','g430 max 10k','driver'],p:549,s:'ping.com'},
+  {kw:['ping','g430','driver'],p:499,s:'ping.com'},
+  {kw:['ping','g425','driver'],p:449,s:'golfgalaxy.com'},
+  // Ping Irons
+  {kw:['ping','g440 hl','iron'],p:1299,s:'ping.com'},
+  {kw:['ping','g440','iron'],p:1199,s:'ping.com'},
+  {kw:['ping','i240','iron'],p:1399,s:'ping.com'},
+  {kw:['ping','blueprint','iron'],p:1499,s:'ping.com'},
+  {kw:['ping','i530','iron'],p:1199,s:'ping.com'},
+  {kw:['ping','g730','iron'],p:1099,s:'ping.com'},
+  {kw:['ping','g430','iron'],p:999,s:'ping.com'},
+  {kw:['ping','i230','iron'],p:1199,s:'ping.com'},
+  {kw:['ping','g710','iron'],p:999,s:'golfgalaxy.com'},
+  {kw:['ping','i525','iron'],p:1099,s:'ping.com'},
+  // Ping Wedge / Putter
+  {kw:['ping','s259','wedge'],p:229,s:'ping.com'},
+  {kw:['ping','s159','wedge'],p:219,s:'ping.com'},
+  {kw:['ping','bunkr','wedge'],p:229,s:'ping.com'},
+  {kw:['ping','pld milled anser 30','putter'],p:449,s:'ping.com'},
+  {kw:['ping','pld milled','putter'],p:449,s:'ping.com'},
+  {kw:['ping','scottsdale anser','putter'],p:329,s:'ping.com'},
+  // Titleist Drivers
+  {kw:['titleist','gt2','driver'],p:549,s:'titleist.com'},
+  {kw:['titleist','gt1','driver'],p:549,s:'titleist.com'},
+  {kw:['titleist','gt3','driver'],p:549,s:'titleist.com'},
+  {kw:['titleist','tsr3','driver'],p:499,s:'titleist.com'},
+  {kw:['titleist','tsr2','driver'],p:499,s:'titleist.com'},
+  // Titleist Irons
+  {kw:['titleist','t100'],p:1499,s:'titleist.com'},
+  {kw:['titleist','t150'],p:1399,s:'titleist.com'},
+  {kw:['titleist','t200'],p:1399,s:'titleist.com'},
+  {kw:['titleist','t250'],p:1299,s:'titleist.com'},
+  {kw:['titleist','t350'],p:1199,s:'titleist.com'},
+  // Titleist Wedge / Putter
+  {kw:['titleist','vokey sm11','wedge'],p:199,s:'titleist.com'},
+  {kw:['titleist','vokey sm10','wedge'],p:179,s:'titleist.com'},
+  {kw:['titleist','vokey sm9','wedge'],p:159,s:'titleist.com'},
+  {kw:['titleist','phantom black','putter'],p:499,s:'titleist.com'},
+  {kw:['titleist','studio style','putter'],p:599,s:'titleist.com'},
+  {kw:['titleist','phantom x','putter'],p:399,s:'titleist.com'},
+  // Cobra
+  {kw:['cobra','optm','driver'],p:549,s:'cobragolf.com'},
+  {kw:['cobra','ds-adapt','driver'],p:499,s:'cobragolf.com'},
+  {kw:['cobra','darkspeed','driver'],p:449,s:'cobragolf.com'},
+  {kw:['cobra','aerojet','driver'],p:399,s:'cobragolf.com'},
+  {kw:['cobra','ds-adapt','iron'],p:1099,s:'cobragolf.com'},
+  {kw:['cobra','king tec x','iron'],p:1099,s:'cobragolf.com'},
+  {kw:['cobra','king tec','iron'],p:999,s:'cobragolf.com'},
+  {kw:['cobra','king forged tec','iron'],p:1099,s:'cobragolf.com'},
+  {kw:['cobra','darkspeed','iron'],p:999,s:'cobragolf.com'},
+  {kw:['cobra','snakebite','wedge'],p:129,s:'cobragolf.com'},
+  {kw:['cobra','grandsport','putter'],p:349,s:'cobragolf.com'},
+  // Cleveland
+  {kw:['cleveland','rtz zipcore','wedge'],p:149,s:'clevelandgolf.com'},
+  {kw:['cleveland','rtx 6','wedge'],p:169,s:'clevelandgolf.com'},
+  {kw:['cleveland','cbx 4','wedge'],p:149,s:'clevelandgolf.com'},
+  {kw:['cleveland','smart sole','wedge'],p:119,s:'clevelandgolf.com'},
+  {kw:['cleveland','hb soft milled','putter'],p:149,s:'clevelandgolf.com'},
+  // Mizuno
+  {kw:['mizuno','jpx-925 hot metal','iron'],p:799,s:'mizunogolf.com'},
+  {kw:['mizuno','jpx-925 forged','iron'],p:999,s:'mizunogolf.com'},
+  {kw:['mizuno','mp 243','iron'],p:999,s:'mizunogolf.com'},
+  {kw:['mizuno','pro 243','iron'],p:1099,s:'mizunogolf.com'},
+  {kw:['mizuno','pro 223','iron'],p:1099,s:'mizunogolf.com'},
+  {kw:['mizuno','pro t-1','wedge'],p:149,s:'mizunogolf.com'},
+  {kw:['mizuno','t22','wedge'],p:129,s:'mizunogolf.com'},
+  {kw:['mizuno','m.craft omoi','putter'],p:279,s:'mizunogolf.com'},
+  // Srixon / XXIO
+  {kw:['srixon','zxi5','iron'],p:1099,s:'srixon.com'},
+  {kw:['srixon','zxi4','iron'],p:999,s:'srixon.com'},
+  {kw:['srixon','zx5','iron'],p:899,s:'srixon.com'},
+  {kw:['xxio 14','driver'],p:699,s:'srixon.com'},
+  {kw:['xxio 13','driver'],p:599,s:'srixon.com'},
+  {kw:['xxio prime 13','driver'],p:999,s:'srixon.com'},
+  {kw:['xxio 14','iron'],p:1599,s:'srixon.com'},
+  {kw:['xxio 13','iron'],p:1499,s:'srixon.com'},
+  {kw:['xxio prime 13','iron'],p:1899,s:'srixon.com'},
+  // Honma
+  {kw:['honma','beres 10','5-star'],p:6500,s:'honmagolf.com'},
+  {kw:['honma','beres 10','4-star'],p:3500,s:'honmagolf.com'},
+  {kw:['honma','beres 10','3-star'],p:1500,s:'honmagolf.com'},
+  {kw:['honma','beres 09','5-star'],p:5500,s:'honmagolf.com'},
+  {kw:['honma','beres 09','4-star'],p:3000,s:'honmagolf.com'},
+  {kw:['honma','beres 09','3-star'],p:1200,s:'honmagolf.com'},
+  {kw:['honma','beres 09','2-star'],p:700,s:'honmagolf.com'},
+  {kw:['honma','beres 09 black'],p:650,s:'honmagolf.com'},
+  {kw:['honma','tw767 ls','driver'],p:499,s:'honmagolf.com'},
+  {kw:['honma','tw767','driver'],p:449,s:'honmagolf.com'},
+  {kw:['honma','tw hx','iron'],p:1099,s:'honmagolf.com'},
+  {kw:['honma','tw px','iron'],p:999,s:'honmagolf.com'},
+  {kw:['honma','t//world tour v','iron'],p:999,s:'honmagolf.com'},
+  // Majesty
+  {kw:['majesty','sublime 2023','package'],p:18000,s:'majestygolf.jp'},
+  {kw:['majesty','sublime'],p:3500,s:'majestygolf.jp'},
+  {kw:['majesty','prestigio 14'],p:2500,s:'majestygolf.jp'},
+  {kw:['majesty','prestigio 13'],p:2000,s:'majestygolf.jp'},
+  {kw:['majesty','royale'],p:1200,s:'majestygolf.jp'},
+  // PXG
+  {kw:['pxg','0311','gen 6','driver'],p:449,s:'pxg.com'},
+  {kw:['pxg','0311','driver'],p:399,s:'pxg.com'},
+  {kw:['pxg','0211','driver'],p:299,s:'pxg.com'},
+  {kw:['pxg','0311p','gen 6','iron'],p:1399,s:'pxg.com'},
+  {kw:['pxg','0311xp','gen 6','iron'],p:1199,s:'pxg.com'},
+  {kw:['pxg','0211','iron'],p:699,s:'pxg.com'},
+  {kw:['pxg','sugardaddy','wedge'],p:249,s:'pxg.com'},
+  // Miura
+  {kw:['miura','cb-302','iron'],p:3200,s:'miuragolf.com'},
+  {kw:['miura','tc-202','iron'],p:3000,s:'miuragolf.com'},
+  {kw:['miura','km-700','iron'],p:2800,s:'miuragolf.com'},
+  {kw:['miura','cb-301','iron'],p:2500,s:'miuragolf.com'},
+  {kw:['miura','k-grind','wedge'],p:279,s:'miuragolf.com'},
+  // Yamaha
+  {kw:['yamaha','rmx dd','iron'],p:899,s:'yamahagolf.co.jp'},
+  {kw:['yamaha','inpres drivestar type','iron'],p:1399,s:'yamahagolf.co.jp'},
+  {kw:['yamaha','inpres drivestar','iron'],p:999,s:'yamahagolf.co.jp'},
+  {kw:['yamaha','rmx dd','driver'],p:449,s:'yamahagolf.co.jp'},
+  {kw:['yamaha','inpres drivestar','driver'],p:499,s:'yamahagolf.co.jp'},
+  // Evnroll / Bettinardi
+  {kw:['evnroll','zero z','putter'],p:499,s:'evnroll.com'},
+  {kw:['evnroll','er2','putter'],p:299,s:'evnroll.com'},
+  {kw:['evnroll','er1','putter'],p:299,s:'evnroll.com'},
+  {kw:['bettinardi','dass','putter'],p:1800,s:'bettinardi.com'},
+  {kw:['bettinardi','studio stock','putter'],p:449,s:'bettinardi.com'},
+  // Scotty Cameron
+  {kw:['scotty cameron','studio style','putter'],p:699,s:'titleist.com'},
+  {kw:['scotty cameron','phantom','putter'],p:599,s:'titleist.com'},
+  {kw:['scotty cameron','special select','putter'],p:449,s:'titleist.com'},
+  // LAB Golf
+  {kw:['lab golf','df3','putter'],p:699,s:'labgolf.com'},
+  {kw:['lab golf','link 1','putter'],p:699,s:'labgolf.com'},
+  {kw:['lab golf','oz.1','putter'],p:799,s:'labgolf.com'},
+  // Autoflex
+  {kw:['autoflex','sf505xx'],p:529,s:'autoflex.co.kr'},
+  {kw:['autoflex','sf505x'],p:529,s:'autoflex.co.kr'},
+  {kw:['autoflex','sf505'],p:479,s:'autoflex.co.kr'},
+  // Onoff / Maruman
+  {kw:['onoff','aka tungsten','iron'],p:899,s:'daiwa-seiko.co.jp'},
+  {kw:['onoff','aka','driver'],p:549,s:'daiwa-seiko.co.jp'},
+  {kw:['maruman','sg m230','iron'],p:999,s:'maruman.co.jp'},
+  {kw:['maruman','sg m230','driver'],p:599,s:'maruman.co.jp'},
+];
+
+const EXCHR2 = 16200; // pakai nama berbeda agar tidak bentrok
+const BRAND_TIER = {
+  'honma':[0.70,1.20,'JP premium'],'majesty':[0.65,1.10,'JP ultra premium'],
+  'miura':[0.65,1.10,'JP forged'],'taylormade':[0.80,1.10,'US premium'],
+  'callaway':[0.80,1.10,'US premium'],'ping':[0.80,1.10,'US premium'],
+  'titleist':[0.80,1.10,'US premium'],'cobra':[0.80,1.10,'US premium'],
+  'pxg':[0.75,1.05,'US premium'],'xxio':[0.70,1.05,'JP premium'],
+  'srixon':[0.80,1.10,'US/JP'],'mizuno':[0.80,1.10,'JP standard'],
+  'cleveland':[0.85,1.15,'US standard'],'yamaha':[0.70,1.05,'JP market'],
+  'onoff':[0.70,1.10,'JP market'],'maruman':[0.70,1.10,'JP market'],
+  'odyssey':[0.80,1.15,'US standard'],'evnroll':[0.75,1.10,'US boutique'],
+  'bettinardi':[0.65,1.00,'US boutique'],
+};
+
+function gpLookup(brand, name) {
+  const key = (brand + ' ' + name).toLowerCase();
+  let best = null, bestScore = 0;
+  for (const e of GPDB) {
+    const hits = e.kw.filter(k => key.includes(k)).length;
+    if (!hits) continue;
+    const score = hits / e.kw.length;
+    if (score >= 0.8 && score > bestScore) { bestScore = score; best = e; }
+  }
+  return best;
+}
+
+// ── 2. Handler tombol ─────────────────────────────────────────────
+window.checkGlobalPrice = function(btn) {
+  const td = btn.closest('td');
+  const brand = btn.dataset.b;
+  const name  = btn.dataset.n;
+  const price = parseInt(btn.dataset.p);
+  btn.disabled = true;
+  btn.textContent = '🔍...';
+
+  setTimeout(function() {
+    const m = gpLookup(brand, name);
+    const estCIF = Math.round(price * 0.40 / EXCHR2);
+    if (m) {
+      const ratio = price / (m.p * EXCHR2);
+      const flagBC = Math.round(m.p * 0.22);
+      const minCIF = Math.round(m.p * 0.35);
+      let cls, lbl, ico, bg;
+      if (ratio < 0.45)      { cls='fr-red'; lbl='ANOMALI'; ico='🔴'; bg='rgba(192,57,43,0.12)'; }
+      else if (ratio < 0.72) { cls='fr-yel'; lbl='WASPADA'; ico='🟡'; bg='rgba(230,126,34,0.08)'; }
+      else                   { cls='fr-grn'; lbl='WAJAR';   ico='🟢'; bg='rgba(39,174,96,0.07)'; }
+      td.style.background = bg;
+      td.innerHTML =
+        '<div class="fr-box">' +
+        '<div class="'+cls+'">'+ico+' '+lbl+'</div>' +
+        '<div class="fr-dim">Global ref: <b style="color:rgba(248,244,232,.85)">$'+m.p.toLocaleString()+'</b></div>' +
+        '<div class="fr-dim">IDR/global: <b style="color:rgba(248,244,232,.85)">'+(ratio*100).toFixed(0)+'%</b></div>' +
+        '<div class="fr-dim">Est.CIF: <b>$'+estCIF+'</b> · Flag ≤ <b style="color:#ff8888">$'+flagBC+'</b></div>' +
+        '<div style="font-size:8px;color:rgba(248,244,232,.3)">'+m.s+'</div>' +
+        '</div>';
+    } else {
+      const bk = brand.toLowerCase();
+      const tier = BRAND_TIER[bk];
+      if (tier) {
+        const lo = Math.round(price/(tier[1]*EXCHR2));
+        const hi = Math.round(price/(tier[0]*EXCHR2));
+        td.innerHTML = '<div class="fr-box"><div class="fr-yel">⚠️ ESTIMASI</div>' +
+          '<div class="fr-dim">Est. global: <b style="color:rgba(248,244,232,.85)">$'+lo.toLocaleString()+'–$'+hi.toLocaleString()+'</b></div>' +
+          '<div class="fr-dim">Tier: '+tier[2]+' · Est.CIF: <b>$'+estCIF+'</b></div>' +
+          '<div style="font-size:8px;color:rgba(248,244,232,.3)">verifikasi manual diperlukan</div></div>';
+      } else {
+        td.innerHTML = '<span class="fr-na" style="font-size:9px">Produk niche — cek manual</span>';
+      }
+    }
+  }, 120);
+};
+
+// ── 3. Override render() ─────────────────────────────────────────
+// Tunggu sampai render asli selesai, lalu patch kolom flag
+var _origRender = window.render;
+window.render = function() {
+  _origRender.apply(this, arguments);
+  patchFlagColumn();
+};
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+}
+
+function patchFlagColumn() {
+  // Update header
+  var ths = document.querySelectorAll('#mainTable thead th');
+  if (ths[6]) {
+    ths[6].style.color = '#5ba8d0';
+    ths[6].style.background = 'rgba(41,84,158,0.12)';
+    ths[6].style.cursor = 'default';
+    ths[6].textContent = '🌐 Analisis Harga Global';
+  }
+  // Fix sort indices on Kategori and Harga headers
+  if (ths[3]) ths[3].onclick = function(){ sortByFixed(4); };
+  if (ths[4]) ths[4].onclick = function(){ sortByFixed(3); };
+
+  // Replace flag cells in each row
+  var rows = document.querySelectorAll('#mainTable tbody tr');
+  rows.forEach(function(row) {
+    var cells = row.querySelectorAll('td');
+    if (cells.length < 7) return;
+    var store = cells[0].textContent.trim();
+    var brand = cells[1].textContent.trim();
+    var name  = cells[2].textContent.trim();
+    var priceText = cells[4].textContent.replace(/[^\d]/g,'');
+    var price = parseInt(priceText) || 0;
+
+    var isPreowned = store.indexOf('Pre-owned') >= 0 ||
+                     store.indexOf('Hobby Golf') >= 0 ||
+                     store.indexOf("Bob's") >= 0;
+
+    var flagTd = cells[6];
+    // Only replace if still showing old flag (has $ sign or red span)
+    if (flagTd.querySelector('button.btn-cek')) return; // already patched
+    if (isPreowned) {
+      flagTd.innerHTML = '<span class="fr-na" style="font-size:9px">N/A · pre-owned/marketplace</span>';
+    } else {
+      flagTd.innerHTML =
+        '<button class="btn-cek" ' +
+        'data-b="' + esc(brand) + '" ' +
+        'data-n="' + esc(name)  + '" ' +
+        'data-p="' + price      + '" ' +
+        'onclick="checkGlobalPrice(this)">🌐 Cek Global</button>';
+    }
+  });
+}
+
+// ── 4. Fix sortBy untuk sort yang benar ──────────────────────────
+function sortByFixed(col) {
+  // Panggil sortBy asli tapi dengan kolom yang sudah benar
+  // data[3]=price, data[4]=category
+  var origSortBy = window._origSortBy || window.sortBy;
+  if (!window._origSortBy) window._origSortBy = window.sortBy;
+  // Override doSort sementara untuk fix mapping
+  window.sortBy(col);
+}
+
+// ── 5. Init ───────────────────────────────────────────────────────
+// Jalankan patch setelah render pertama
+setTimeout(patchFlagColumn, 300);
+
+})(); // end IIFE
+</script>
 </body>
 </html>
