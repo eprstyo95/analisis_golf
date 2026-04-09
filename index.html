@@ -105,7 +105,7 @@ td.td-flag{min-width:160px;vertical-align:middle}
 <div class="header">
   <div class="hkop">
     <div class="hagency">KPPBC Tipe Madya Pabean C — MCR Marunda · DJBC Jakarta · Database Harga Intelijen</div>
-    <div class="hbadge">Tab 09 — Real Data + AI Price Check</div>
+    <div class="hbadge">Tab 09 — Real Data + Local Price Benchmark</div>
   </div>
   <div class="htitle">Database Harga <span>Stik Golf</span></div>
   <div class="hsub">Harga aktual dari 7 toko resmi &amp; marketplace Indonesia · 3,174 produk terindeks · Data real dari mstgolf.id · leoniangolf.com · topgolf.co.id · Shopee · Tokopedia · April 2026</div>
@@ -184,7 +184,7 @@ td.td-flag{min-width:160px;vertical-align:middle}
 
 <div class="global-hint">
   <span>🌐</span>
-  <span><strong style="color:rgba(91,168,208,0.9)">Kolom Analisis Harga Global</strong> — Klik tombol <strong>Cek Global</strong> di baris produk resmi untuk mencari harga pasar internasional via web search AI, kemudian menghitung rasio harga IDR vs harga global dan menetapkan threshold Flag BC yang akurat.</span>
+  <span><strong style="color:rgba(91,168,208,0.9)">Kolom Analisis Harga Global</strong> — Klik tombol <strong>Cek Global</strong> di baris produk resmi untuk membaca benchmark harga global dari <strong>database lokal</strong> yang ditanam langsung di HTML. Benchmark diambil dari snapshot retail global/authorized retailer per 9 April 2026, lalu dipakai untuk menghitung rasio harga IDR vs harga global dan threshold Flag BC.</span>
 </div>
 
 <div class="main">
@@ -224,7 +224,7 @@ td.td-flag{min-width:160px;vertical-align:middle}
   <div class="fl">
     Database Harga Intelijen Kepabeanan — KPPBC TMP-C MCR Marunda · DJBC Jakarta<br>
     Sumber: mstgolf.id · leoniangolf.com · topgolf.co.id · golfellas.co.id · Shopee · Tokopedia · April 2026<br>
-    Harga retail sebagai acuan nilai pabean — CIF wajar ≈ 35–50% dari harga retail · Analisis global via AI web search
+    Harga retail sebagai acuan nilai pabean — CIF wajar ≈ 35–50% dari harga retail · Analisis global via database lokal benchmark
   </div>
   <div class="fr">HS 9506.31–39 · 3.174 produk · 7 entitas</div>
 </div>
@@ -552,8 +552,1596 @@ const STORE_DOT = {
   "Golfellas (Pre-owned)":"#8a8a8a","Golfmart (Shopee)":"#e8a030","Bob's Golf (Shopee)":"#d4853a","Hobby Golf (Tokopedia)":"#5ba8d0"
 };
 
+
 // Cache untuk hasil lookup global agar tidak repeat
 const globalPriceCache = {};
+const LOCAL_DB_LAST_UPDATED = '2026-04-09';
+
+// Database lokal benchmark harga global (USD)
+// Catatan: ini adalah snapshot retail global/authorized retailer yang ditanam langsung ke HTML.
+// Jika model tidak ada di database lokal, sistem akan menampilkan bahwa benchmark belum tersedia.
+const LOCAL_GLOBAL_DB = [
+  {
+    "brand": "Ping",
+    "category": "Driver",
+    "keywords": [
+      "g440",
+      "k"
+    ],
+    "priceUSD": 619,
+    "source": "Golf Galaxy",
+    "confidence": "high",
+    "note": "Benchmark pasar saat ini",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Ping",
+    "category": "Driver",
+    "keywords": [
+      "g440"
+    ],
+    "priceUSD": 619,
+    "source": "Golf Galaxy",
+    "confidence": "high",
+    "note": "Benchmark keluarga G440 driver",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Ping",
+    "category": "Driver",
+    "keywords": [
+      "g430",
+      "10k"
+    ],
+    "priceUSD": 449,
+    "source": "Golf Galaxy",
+    "confidence": "high",
+    "note": "G430 MAX 10K sale snapshot",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Ping",
+    "category": "Fairway",
+    "keywords": [
+      "g440"
+    ],
+    "priceUSD": 369,
+    "source": "Golf Galaxy",
+    "confidence": "high",
+    "note": "Benchmark keluarga G440 fairway",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Ping",
+    "category": "Hybrid/Rescue",
+    "keywords": [
+      "g440"
+    ],
+    "priceUSD": 319,
+    "source": "Golf Galaxy",
+    "confidence": "high",
+    "note": "Benchmark keluarga G440 hybrid",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Ping",
+    "category": "Iron Set",
+    "keywords": [
+      "i240"
+    ],
+    "priceUSD": 1400,
+    "source": "Golf Galaxy",
+    "confidence": "high",
+    "note": "Set 4-9,PW",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Ping",
+    "category": "Iron Set",
+    "keywords": [
+      "g440"
+    ],
+    "priceUSD": 1249,
+    "source": "Golf Galaxy",
+    "confidence": "medium",
+    "note": "Set snapshot sampai 7-club config",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Ping",
+    "category": "Iron Set",
+    "keywords": [
+      "g730"
+    ],
+    "priceUSD": 1277.5,
+    "source": "Golf Galaxy",
+    "confidence": "medium",
+    "note": "Upper bound current listing",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Ping",
+    "category": "Wedge",
+    "keywords": [
+      "s159"
+    ],
+    "priceUSD": 179,
+    "source": "Golf Galaxy",
+    "confidence": "high",
+    "note": "s159 current retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Ping",
+    "category": "Wedge",
+    "keywords": [
+      "bunkr"
+    ],
+    "priceUSD": 189,
+    "source": "Golf Galaxy",
+    "confidence": "high",
+    "note": "BunkR current retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Ping",
+    "category": "Putter",
+    "keywords": [
+      "scottsdale",
+      "anser 2d"
+    ],
+    "priceUSD": 249,
+    "source": "Golf Galaxy",
+    "confidence": "high",
+    "note": "Scottsdale Anser 2D",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Ping",
+    "category": "Putter",
+    "keywords": [
+      "scottsdale",
+      "anser"
+    ],
+    "priceUSD": 259,
+    "source": "Golf Galaxy",
+    "confidence": "high",
+    "note": "Scottsdale Anser",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Ping",
+    "category": "Putter",
+    "keywords": [
+      "pld",
+      "anser"
+    ],
+    "priceUSD": 449,
+    "source": "Golf Galaxy",
+    "confidence": "high",
+    "note": "PLD Milled family",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Titleist",
+    "category": "Driver",
+    "keywords": [
+      "gt2"
+    ],
+    "priceUSD": 449,
+    "source": "Titleist",
+    "confidence": "high",
+    "note": "GT2 official retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Titleist",
+    "category": "Driver",
+    "keywords": [
+      "gt3"
+    ],
+    "priceUSD": 449,
+    "source": "Titleist",
+    "confidence": "high",
+    "note": "GT3 official retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Titleist",
+    "category": "Hybrid/Rescue",
+    "keywords": [
+      "gt2"
+    ],
+    "priceUSD": 329,
+    "source": "Titleist",
+    "confidence": "high",
+    "note": "GT2 hybrid official retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Titleist",
+    "category": "Hybrid/Rescue",
+    "keywords": [
+      "gt3"
+    ],
+    "priceUSD": 329,
+    "source": "Titleist",
+    "confidence": "high",
+    "note": "GT3 hybrid official retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Titleist",
+    "category": "Fairway",
+    "keywords": [
+      "gt2"
+    ],
+    "priceUSD": 329,
+    "source": "Titleist",
+    "confidence": "high",
+    "note": "GT2 fairway official retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Titleist",
+    "category": "Fairway",
+    "keywords": [
+      "gt3"
+    ],
+    "priceUSD": 329,
+    "source": "Titleist",
+    "confidence": "high",
+    "note": "GT3 fairway official retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Titleist",
+    "category": "Iron Set",
+    "keywords": [
+      "t100"
+    ],
+    "priceUSD": 1499.99,
+    "source": "Golf Galaxy",
+    "confidence": "high",
+    "note": "2025 T100 set 4-9,PW",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Titleist",
+    "category": "Iron Set",
+    "keywords": [
+      "t250u"
+    ],
+    "priceUSD": 279.99,
+    "source": "Golf Galaxy",
+    "confidence": "high",
+    "note": "T250U driving iron",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Titleist",
+    "category": "Iron Set",
+    "keywords": [
+      "u 505"
+    ],
+    "priceUSD": 279.99,
+    "source": "Golf Galaxy",
+    "confidence": "high",
+    "note": "U-505 driving iron",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Titleist",
+    "category": "Iron Set",
+    "keywords": [
+      "u505"
+    ],
+    "priceUSD": 279.99,
+    "source": "Golf Galaxy",
+    "confidence": "high",
+    "note": "U-505 driving iron",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Titleist",
+    "category": "Iron Set",
+    "keywords": [
+      "t250"
+    ],
+    "priceUSD": 1499.99,
+    "source": "Golf Galaxy",
+    "confidence": "high",
+    "note": "2025 T250 set 4-9,PW",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Titleist",
+    "category": "Iron Set",
+    "keywords": [
+      "t350"
+    ],
+    "priceUSD": 1399.99,
+    "source": "Golf Galaxy",
+    "confidence": "medium",
+    "note": "Current retail shown in cart range",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Titleist",
+    "category": "Wedge",
+    "keywords": [
+      "sm10"
+    ],
+    "priceUSD": 169.99,
+    "source": "Golf Galaxy",
+    "confidence": "high",
+    "note": "Vokey SM10 current retail snapshot",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Taylormade",
+    "category": "Driver",
+    "keywords": [
+      "qi35",
+      "ls"
+    ],
+    "priceUSD": 449.99,
+    "source": "TaylorMade",
+    "confidence": "high",
+    "note": "Qi35 LS current sale price",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Taylormade",
+    "category": "Driver",
+    "keywords": [
+      "qi35"
+    ],
+    "priceUSD": 449.99,
+    "source": "TaylorMade",
+    "confidence": "high",
+    "note": "Qi35 family current sale price",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Taylormade",
+    "category": "Fairway",
+    "keywords": [
+      "qi35"
+    ],
+    "priceUSD": 299.99,
+    "source": "TaylorMade",
+    "confidence": "high",
+    "note": "Qi35 fairway current sale price",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Taylormade",
+    "category": "Hybrid/Rescue",
+    "keywords": [
+      "qi35"
+    ],
+    "priceUSD": 249.99,
+    "source": "TaylorMade",
+    "confidence": "high",
+    "note": "Qi35 rescue current sale price",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Taylormade",
+    "category": "Driver",
+    "keywords": [
+      "qi10",
+      "ls"
+    ],
+    "priceUSD": 529.99,
+    "source": "TaylorMade",
+    "confidence": "high",
+    "note": "Qi10 LS current sale price",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Taylormade",
+    "category": "Driver",
+    "keywords": [
+      "qi10"
+    ],
+    "priceUSD": 399.99,
+    "source": "TaylorMade",
+    "confidence": "high",
+    "note": "Qi10 family current sale price",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Taylormade",
+    "category": "Fairway",
+    "keywords": [
+      "qi10"
+    ],
+    "priceUSD": 269.99,
+    "source": "TaylorMade",
+    "confidence": "high",
+    "note": "Qi10 fairway current sale price",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Taylormade",
+    "category": "Hybrid/Rescue",
+    "keywords": [
+      "qi10"
+    ],
+    "priceUSD": 239.99,
+    "source": "Golf Galaxy",
+    "confidence": "high",
+    "note": "Qi10 rescue current retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Taylormade",
+    "category": "Driver",
+    "keywords": [
+      "qi4d"
+    ],
+    "priceUSD": 449.99,
+    "source": "TaylorMade",
+    "confidence": "medium",
+    "note": "Proxy benchmark ke keluarga Qi35",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Taylormade",
+    "category": "Fairway",
+    "keywords": [
+      "qi4d"
+    ],
+    "priceUSD": 299.99,
+    "source": "TaylorMade",
+    "confidence": "medium",
+    "note": "Proxy benchmark ke keluarga Qi35",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Taylormade",
+    "category": "Hybrid/Rescue",
+    "keywords": [
+      "qi4d"
+    ],
+    "priceUSD": 249.99,
+    "source": "TaylorMade",
+    "confidence": "medium",
+    "note": "Proxy benchmark ke keluarga Qi35",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Taylormade",
+    "category": "Iron Set",
+    "keywords": [
+      "p790"
+    ],
+    "priceUSD": 1399.99,
+    "source": "Golf Galaxy",
+    "confidence": "high",
+    "note": "P790 current retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Taylormade",
+    "category": "Iron Set",
+    "keywords": [
+      "qi max lite"
+    ],
+    "priceUSD": 1099.99,
+    "source": "Golf Galaxy",
+    "confidence": "medium",
+    "note": "Proxy ke Qi MAX HL/Lite family",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Taylormade",
+    "category": "Iron Set",
+    "keywords": [
+      "qi max"
+    ],
+    "priceUSD": 1099.99,
+    "source": "Golf Galaxy",
+    "confidence": "high",
+    "note": "Qi MAX current retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Taylormade",
+    "category": "Iron Set",
+    "keywords": [
+      "qi gunmetal"
+    ],
+    "priceUSD": 1099.99,
+    "source": "Golf Galaxy",
+    "confidence": "medium",
+    "note": "Qi Gunmetal current retail range",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Taylormade",
+    "category": "Wedge",
+    "keywords": [
+      "milled grind 5"
+    ],
+    "priceUSD": 199.99,
+    "source": "Golf Galaxy",
+    "confidence": "high",
+    "note": "MG5 current retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Taylormade",
+    "category": "Wedge",
+    "keywords": [
+      "milled grind 4"
+    ],
+    "priceUSD": 179.99,
+    "source": "Golf Galaxy",
+    "confidence": "medium",
+    "note": "MG4 current in-cart price snapshot",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Taylormade",
+    "category": "Package Set",
+    "keywords": [
+      "rbz"
+    ],
+    "priceUSD": 1399.99,
+    "source": "TaylorMade / Golf Galaxy",
+    "confidence": "medium",
+    "note": "RBZ SpeedLite complete set snapshot",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Callaway",
+    "category": "Driver",
+    "keywords": [
+      "elyte",
+      "triple diamond"
+    ],
+    "priceUSD": 499.99,
+    "source": "Callaway",
+    "confidence": "high",
+    "note": "Elyte Triple Diamond current retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Callaway",
+    "category": "Driver",
+    "keywords": [
+      "elyte",
+      "max fast"
+    ],
+    "priceUSD": 449.99,
+    "source": "Callaway",
+    "confidence": "high",
+    "note": "Elyte Max Fast current retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Callaway",
+    "category": "Driver",
+    "keywords": [
+      "elyte"
+    ],
+    "priceUSD": 449.99,
+    "source": "Callaway",
+    "confidence": "high",
+    "note": "Elyte driver current retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Callaway",
+    "category": "Fairway",
+    "keywords": [
+      "elyte"
+    ],
+    "priceUSD": 299.99,
+    "source": "Callaway",
+    "confidence": "high",
+    "note": "Elyte fairway current retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Callaway",
+    "category": "Hybrid/Rescue",
+    "keywords": [
+      "elyte"
+    ],
+    "priceUSD": 269.99,
+    "source": "Golf Galaxy",
+    "confidence": "high",
+    "note": "Elyte hybrid current retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Callaway",
+    "category": "Iron Set",
+    "keywords": [
+      "elyte"
+    ],
+    "priceUSD": 849.99,
+    "source": "Golf Galaxy",
+    "confidence": "high",
+    "note": "Elyte irons current retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Callaway",
+    "category": "Driver",
+    "keywords": [
+      "quantum",
+      "max fast"
+    ],
+    "priceUSD": 699.99,
+    "source": "Callaway",
+    "confidence": "high",
+    "note": "Quantum Max Fast current retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Callaway",
+    "category": "Driver",
+    "keywords": [
+      "quantum",
+      "max"
+    ],
+    "priceUSD": 649.99,
+    "source": "Callaway",
+    "confidence": "high",
+    "note": "Quantum Max current retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Callaway",
+    "category": "Driver",
+    "keywords": [
+      "paradym",
+      "ai smoke",
+      "triple diamond"
+    ],
+    "priceUSD": 399.99,
+    "source": "Callaway",
+    "confidence": "high",
+    "note": "Paradym Ai Smoke TD current retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Callaway",
+    "category": "Driver",
+    "keywords": [
+      "paradym",
+      "ai smoke"
+    ],
+    "priceUSD": 399.99,
+    "source": "Callaway",
+    "confidence": "high",
+    "note": "Paradym Ai Smoke MAX current retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Callaway",
+    "category": "Fairway",
+    "keywords": [
+      "paradym",
+      "ai smoke"
+    ],
+    "priceUSD": 269.99,
+    "source": "Callaway",
+    "confidence": "high",
+    "note": "Paradym Ai Smoke MAX fairway current retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Callaway",
+    "category": "Hybrid/Rescue",
+    "keywords": [
+      "paradym",
+      "ai smoke"
+    ],
+    "priceUSD": 219.99,
+    "source": "Callaway",
+    "confidence": "high",
+    "note": "Paradym Ai Smoke hybrid current retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Callaway",
+    "category": "Iron Set",
+    "keywords": [
+      "paradym",
+      "ai smoke"
+    ],
+    "priceUSD": 899.99,
+    "source": "Callaway",
+    "confidence": "high",
+    "note": "Paradym Ai Smoke irons current retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Odyssey",
+    "category": "Putter",
+    "keywords": [
+      "ai dual",
+      "square 2 square"
+    ],
+    "priceUSD": 399.99,
+    "source": "Golf Galaxy",
+    "confidence": "high",
+    "note": "Ai-DUAL Square 2 Square current retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Odyssey",
+    "category": "Putter",
+    "keywords": [
+      "ai dual"
+    ],
+    "priceUSD": 349.99,
+    "source": "Golf Galaxy",
+    "confidence": "high",
+    "note": "Ai-DUAL current retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Odyssey",
+    "category": "Putter",
+    "keywords": [
+      "ai one"
+    ],
+    "priceUSD": 349.99,
+    "source": "Golf Galaxy",
+    "confidence": "medium",
+    "note": "Proxy ke lini Odyssey premium current retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Cobra",
+    "category": "Driver",
+    "keywords": [
+      "ds adapt",
+      "max"
+    ],
+    "priceUSD": 349.0,
+    "source": "Golf Galaxy",
+    "confidence": "high",
+    "note": "DS-ADAPT MAX family current retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Cobra",
+    "category": "Driver",
+    "keywords": [
+      "ds adapt",
+      "x"
+    ],
+    "priceUSD": 349.0,
+    "source": "Golf Galaxy",
+    "confidence": "high",
+    "note": "DS-ADAPT X current retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Cobra",
+    "category": "Driver",
+    "keywords": [
+      "optm",
+      "max"
+    ],
+    "priceUSD": 599.0,
+    "source": "Golf Galaxy",
+    "confidence": "high",
+    "note": "OPTM MAX family current retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Cobra",
+    "category": "Driver",
+    "keywords": [
+      "optm",
+      "x"
+    ],
+    "priceUSD": 599.0,
+    "source": "Golf Galaxy",
+    "confidence": "high",
+    "note": "OPTM X current retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Cobra",
+    "category": "Fairway",
+    "keywords": [
+      "ds adapt"
+    ],
+    "priceUSD": 199.0,
+    "source": "Golf Galaxy",
+    "confidence": "high",
+    "note": "DS-ADAPT fairway current retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Cobra",
+    "category": "Fairway",
+    "keywords": [
+      "optm"
+    ],
+    "priceUSD": 369.0,
+    "source": "Golf Galaxy",
+    "confidence": "high",
+    "note": "OPTM fairway current retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Cobra",
+    "category": "Hybrid/Rescue",
+    "keywords": [
+      "ds adapt"
+    ],
+    "priceUSD": 179.0,
+    "source": "Golf Galaxy",
+    "confidence": "high",
+    "note": "DS-ADAPT hybrid current retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Cobra",
+    "category": "Hybrid/Rescue",
+    "keywords": [
+      "optm"
+    ],
+    "priceUSD": 329.0,
+    "source": "Golf Galaxy",
+    "confidence": "high",
+    "note": "OPTM hybrid current retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Cobra",
+    "category": "Iron Set",
+    "keywords": [
+      "king tec"
+    ],
+    "priceUSD": 1299.0,
+    "source": "Golf Galaxy",
+    "confidence": "high",
+    "note": "KING TEC irons current retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Srixon",
+    "category": "Iron Set",
+    "keywords": [
+      "zxi5"
+    ],
+    "priceUSD": 1399.99,
+    "source": "Golf Galaxy",
+    "confidence": "high",
+    "note": "ZXi5 irons current retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Srixon",
+    "category": "Iron Set",
+    "keywords": [
+      "zxi4"
+    ],
+    "priceUSD": 1714.24,
+    "source": "Golf Galaxy",
+    "confidence": "medium",
+    "note": "ZXi4 custom range upper bound",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Srixon",
+    "category": "Driver",
+    "keywords": [
+      "xxio prime 13"
+    ],
+    "priceUSD": 999.99,
+    "source": "XXIO / retailers",
+    "confidence": "high",
+    "note": "XXIO Prime 13 current retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Xxio",
+    "category": "Driver",
+    "keywords": [
+      "prime 13"
+    ],
+    "priceUSD": 999.99,
+    "source": "XXIO / retailers",
+    "confidence": "high",
+    "note": "XXIO Prime 13 current retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Srixon",
+    "category": "Driver",
+    "keywords": [
+      "xxio 14"
+    ],
+    "priceUSD": 799.99,
+    "source": "Golf Galaxy",
+    "confidence": "medium",
+    "note": "XXIO 14 current retail snapshot",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Xxio",
+    "category": "Driver",
+    "keywords": [
+      "xxio 14"
+    ],
+    "priceUSD": 799.99,
+    "source": "Golf Galaxy",
+    "confidence": "medium",
+    "note": "XXIO 14 current retail snapshot",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Srixon",
+    "category": "Driver",
+    "keywords": [
+      "xxio 13"
+    ],
+    "priceUSD": 529.99,
+    "source": "PGA TOUR Superstore",
+    "confidence": "high",
+    "note": "XXIO 13 current sale price",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Xxio",
+    "category": "Driver",
+    "keywords": [
+      "xxio 13"
+    ],
+    "priceUSD": 529.99,
+    "source": "PGA TOUR Superstore",
+    "confidence": "high",
+    "note": "XXIO 13 current sale price",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Srixon",
+    "category": "Fairway",
+    "keywords": [
+      "xxio 13"
+    ],
+    "priceUSD": 319.98,
+    "source": "PGA TOUR Superstore",
+    "confidence": "high",
+    "note": "XXIO 13 fairway current sale price",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Xxio",
+    "category": "Fairway",
+    "keywords": [
+      "xxio 13"
+    ],
+    "priceUSD": 319.98,
+    "source": "PGA TOUR Superstore",
+    "confidence": "high",
+    "note": "XXIO 13 fairway current sale price",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Srixon",
+    "category": "Hybrid/Rescue",
+    "keywords": [
+      "xxio 13"
+    ],
+    "priceUSD": 249.98,
+    "source": "PGA TOUR Superstore",
+    "confidence": "high",
+    "note": "XXIO 13 hybrid current sale price",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Xxio",
+    "category": "Hybrid/Rescue",
+    "keywords": [
+      "xxio 13"
+    ],
+    "priceUSD": 249.98,
+    "source": "PGA TOUR Superstore",
+    "confidence": "high",
+    "note": "XXIO 13 hybrid current sale price",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Srixon",
+    "category": "Iron Set",
+    "keywords": [
+      "xxio 13"
+    ],
+    "priceUSD": 849.98,
+    "source": "PGA TOUR Superstore",
+    "confidence": "high",
+    "note": "XXIO 13 irons current sale price",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Xxio",
+    "category": "Iron Set",
+    "keywords": [
+      "xxio 13"
+    ],
+    "priceUSD": 849.98,
+    "source": "PGA TOUR Superstore",
+    "confidence": "high",
+    "note": "XXIO 13 irons current sale price",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Srixon",
+    "category": "Fairway",
+    "keywords": [
+      "prime 13"
+    ],
+    "priceUSD": 649.99,
+    "source": "XXIO",
+    "confidence": "high",
+    "note": "Prime 13 fairway current retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Xxio",
+    "category": "Fairway",
+    "keywords": [
+      "prime 13"
+    ],
+    "priceUSD": 649.99,
+    "source": "XXIO",
+    "confidence": "high",
+    "note": "Prime 13 fairway current retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Srixon",
+    "category": "Hybrid/Rescue",
+    "keywords": [
+      "prime 13"
+    ],
+    "priceUSD": 449.99,
+    "source": "XXIO",
+    "confidence": "high",
+    "note": "Prime 13 hybrid current retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Xxio",
+    "category": "Hybrid/Rescue",
+    "keywords": [
+      "prime 13"
+    ],
+    "priceUSD": 449.99,
+    "source": "XXIO",
+    "confidence": "high",
+    "note": "Prime 13 hybrid current retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Srixon",
+    "category": "Iron Set",
+    "keywords": [
+      "prime 13"
+    ],
+    "priceUSD": 1624.99,
+    "source": "XXIO",
+    "confidence": "high",
+    "note": "Prime 13 irons current retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Xxio",
+    "category": "Iron Set",
+    "keywords": [
+      "prime 13"
+    ],
+    "priceUSD": 1624.99,
+    "source": "XXIO",
+    "confidence": "high",
+    "note": "Prime 13 irons current retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Mizuno",
+    "category": "Iron Set",
+    "keywords": [
+      "jpx 925 forged"
+    ],
+    "priceUSD": 1505.0,
+    "source": "Golf Galaxy",
+    "confidence": "high",
+    "note": "JPX925 Forged current retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Mizuno",
+    "category": "Package Set",
+    "keywords": [
+      "rv 9"
+    ],
+    "priceUSD": 999.99,
+    "source": "approx local benchmark",
+    "confidence": "low",
+    "note": "Proxy benchmark package set umum",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Cleveland",
+    "category": "Wedge",
+    "keywords": [
+      "rtz"
+    ],
+    "priceUSD": 179.99,
+    "source": "Golf Galaxy",
+    "confidence": "high",
+    "note": "RTZ current retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Cleveland",
+    "category": "Wedge",
+    "keywords": [
+      "cbx 4"
+    ],
+    "priceUSD": 129.99,
+    "source": "Cleveland / Golf Galaxy",
+    "confidence": "medium",
+    "note": "CBX family current sale price",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Cleveland",
+    "category": "Wedge",
+    "keywords": [
+      "smart sole"
+    ],
+    "priceUSD": 149.99,
+    "source": "Cleveland",
+    "confidence": "medium",
+    "note": "Smart Sole family benchmark",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Honma",
+    "category": "Driver",
+    "keywords": [
+      "beres 09",
+      "black"
+    ],
+    "priceUSD": 900.0,
+    "source": "Honma US",
+    "confidence": "high",
+    "note": "Beres 09 Black driver official retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Honma",
+    "category": "Fairway",
+    "keywords": [
+      "beres 09",
+      "black"
+    ],
+    "priceUSD": 600.0,
+    "source": "Honma US",
+    "confidence": "high",
+    "note": "Beres 09 Black fairway official retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Honma",
+    "category": "Hybrid/Rescue",
+    "keywords": [
+      "beres 09",
+      "black"
+    ],
+    "priceUSD": 400.0,
+    "source": "Honma US",
+    "confidence": "high",
+    "note": "Beres 09 Black hybrid official retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Honma",
+    "category": "Package Set",
+    "keywords": [
+      "beres 09",
+      "package"
+    ],
+    "priceUSD": 5843.0,
+    "source": "Honma US",
+    "confidence": "high",
+    "note": "Beres 09 Black package set",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Honma",
+    "category": "Driver",
+    "keywords": [
+      "tw767",
+      "ls"
+    ],
+    "priceUSD": 700.0,
+    "source": "Golf Digest / market retail",
+    "confidence": "high",
+    "note": "TW767 LS launch price",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Honma",
+    "category": "Driver",
+    "keywords": [
+      "tw767"
+    ],
+    "priceUSD": 650.0,
+    "source": "Honma / Golf Digest",
+    "confidence": "high",
+    "note": "TW767 / TW767 MAX driver benchmark",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Honma",
+    "category": "Fairway",
+    "keywords": [
+      "tw767"
+    ],
+    "priceUSD": 350.0,
+    "source": "Golf Digest",
+    "confidence": "high",
+    "note": "TW767 fairway launch price",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Honma",
+    "category": "Hybrid/Rescue",
+    "keywords": [
+      "tw767"
+    ],
+    "priceUSD": 325.0,
+    "source": "Golf Digest",
+    "confidence": "high",
+    "note": "TW767 utility launch price",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Honma",
+    "category": "Iron Set",
+    "keywords": [
+      "tw hx"
+    ],
+    "priceUSD": 1050.0,
+    "source": "Honma US",
+    "confidence": "high",
+    "note": "TW HX irons official retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Honma",
+    "category": "Iron Set",
+    "keywords": [
+      "tw px"
+    ],
+    "priceUSD": 875.0,
+    "source": "Honma US",
+    "confidence": "high",
+    "note": "TW PX irons official retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Honma",
+    "category": "Iron Set",
+    "keywords": [
+      "tw vx"
+    ],
+    "priceUSD": 875.0,
+    "source": "Honma US",
+    "confidence": "high",
+    "note": "TW VX irons official retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Honma",
+    "category": "Iron Set",
+    "keywords": [
+      "tour v"
+    ],
+    "priceUSD": 1050.0,
+    "source": "Honma US",
+    "confidence": "high",
+    "note": "TW Tour V irons official retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Honma",
+    "category": "Package Set",
+    "keywords": [
+      "malbon"
+    ],
+    "priceUSD": 5800.0,
+    "source": "Honma US",
+    "confidence": "high",
+    "note": "Malbon x Honma Performance Set",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Yamaha",
+    "category": "Driver",
+    "keywords": [
+      "rmx dd 1"
+    ],
+    "priceUSD": 540.0,
+    "source": "TourSpecGolf",
+    "confidence": "high",
+    "note": "RMX DD-1 current retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Yamaha",
+    "category": "Fairway",
+    "keywords": [
+      "rmx dd"
+    ],
+    "priceUSD": 540.0,
+    "source": "TourSpecGolf",
+    "confidence": "high",
+    "note": "RMX DD fairway current retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Yamaha",
+    "category": "Hybrid/Rescue",
+    "keywords": [
+      "rmx dd"
+    ],
+    "priceUSD": 450.0,
+    "source": "TourSpecGolf",
+    "confidence": "high",
+    "note": "RMX DD utility current retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Yamaha",
+    "category": "Iron Set",
+    "keywords": [
+      "rmx dd"
+    ],
+    "priceUSD": 1150.0,
+    "source": "TourSpecGolf",
+    "confidence": "high",
+    "note": "RMX DD iron set current retail",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Yamaha",
+    "category": "Driver",
+    "keywords": [
+      "inpres",
+      "type s"
+    ],
+    "priceUSD": 880.0,
+    "source": "TourSpecGolf",
+    "confidence": "high",
+    "note": "Inpres DriveStar Type/S 2025",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Yamaha",
+    "category": "Driver",
+    "keywords": [
+      "inpres",
+      "type d"
+    ],
+    "priceUSD": 880.0,
+    "source": "TourSpecGolf",
+    "confidence": "high",
+    "note": "Inpres DriveStar Type/D 2025",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Yamaha",
+    "category": "Fairway",
+    "keywords": [
+      "inpres"
+    ],
+    "priceUSD": 540.0,
+    "source": "TourSpecGolf",
+    "confidence": "high",
+    "note": "Inpres DriveStar fairway 2025",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Yamaha",
+    "category": "Hybrid/Rescue",
+    "keywords": [
+      "inpres"
+    ],
+    "priceUSD": 420.0,
+    "source": "TourSpecGolf",
+    "confidence": "high",
+    "note": "Inpres DriveStar utility 2025",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Yamaha",
+    "category": "Iron Set",
+    "keywords": [
+      "inpres"
+    ],
+    "priceUSD": 1116.0,
+    "source": "TourSpecGolf",
+    "confidence": "high",
+    "note": "Inpres DriveStar Type/S-D irons 2025",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Majesty",
+    "category": "Driver",
+    "keywords": [
+      "royale"
+    ],
+    "priceUSD": 1300.0,
+    "source": "TourSpecGolf",
+    "confidence": "high",
+    "note": "Majesty Royale driver 2025",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Majesty",
+    "category": "Fairway",
+    "keywords": [
+      "royale"
+    ],
+    "priceUSD": 891.0,
+    "source": "TourSpecGolf",
+    "confidence": "high",
+    "note": "Majesty Royale fairway 2025",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Majesty",
+    "category": "Driver",
+    "keywords": [
+      "prestigio 14"
+    ],
+    "priceUSD": 2300.0,
+    "source": "TourSpecGolf",
+    "confidence": "medium",
+    "note": "Prestigio family benchmark",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Majesty",
+    "category": "Fairway",
+    "keywords": [
+      "prestigio 14"
+    ],
+    "priceUSD": 1735.0,
+    "source": "TourSpecGolf",
+    "confidence": "high",
+    "note": "Prestigio 14 fairway",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Majesty",
+    "category": "Hybrid/Rescue",
+    "keywords": [
+      "prestigio 14"
+    ],
+    "priceUSD": 1080.0,
+    "source": "TourSpecGolf",
+    "confidence": "medium",
+    "note": "Prestigio family hybrid benchmark",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Majesty",
+    "category": "Putter",
+    "keywords": [
+      "santorini"
+    ],
+    "priceUSD": 1200.0,
+    "source": "TourSpecGolf",
+    "confidence": "medium",
+    "note": "Santorini putter benchmark",
+    "checked": "2026-04-09"
+  },
+  {
+    "brand": "Majesty",
+    "category": "Package Set",
+    "keywords": [
+      "sublime"
+    ],
+    "priceUSD": 6480.0,
+    "source": "TourSpecGolf",
+    "confidence": "medium",
+    "note": "Sublime iron set family benchmark",
+    "checked": "2026-04-09"
+  }
+];
+
+function normalizeText(str) {
+  return String(str || '')
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[’'`]/g, '')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function moneyUSD(v) {
+  return '$' + Number(v).toLocaleString('en-US', {
+    minimumFractionDigits: Number.isInteger(v) ? 0 : 2,
+    maximumFractionDigits: 2
+  });
+}
+
+function findLocalGlobalPrice(brand, name, cat) {
+  const nBrand = normalizeText(brand);
+  const nName = normalizeText(name);
+  const nCat = normalizeText(cat);
+
+  let best = null;
+  let bestScore = -1;
+
+  for (const item of LOCAL_GLOBAL_DB) {
+    if (normalizeText(item.brand) !== nBrand) continue;
+    if (item.category && normalizeText(item.category) !== nCat) continue;
+
+    const keys = (item.keywords || []).map(normalizeText).filter(Boolean);
+    if (!keys.length) continue;
+
+    let score = 0;
+    let ok = true;
+
+    for (const key of keys) {
+      if (!nName.includes(key)) {
+        ok = false;
+        break;
+      }
+      score += 10 + Math.min(key.length, 8);
+    }
+
+    if (!ok) continue;
+
+    if (nName.includes('2026')) score += 2;
+    if (nName.includes('2025')) score += 1;
+
+    if (score > bestScore) {
+      bestScore = score;
+      best = item;
+    }
+  }
+
+  if (!best) {
+    return {
+      found: false,
+      priceUSD: null,
+      source: null,
+      confidence: null,
+      note: 'Benchmark belum ada di database lokal'
+    };
+  }
+
+  return {
+    found: true,
+    priceUSD: best.priceUSD,
+    source: best.source,
+    confidence: best.confidence,
+    note: best.note,
+    checked: best.checked
+  };
+}
 
 // ═══════════════════════════════════════════════
 // SORT FIX: data[3]=price, data[4]=category
@@ -569,366 +2157,78 @@ let activeStores = new Set(["MST Golf Indonesia","Leonian Golf Indonesia","TopGo
 function formatPrice(n) {
   return 'Rp ' + n.toLocaleString('id-ID');
 }
-// ══════════════════════════════════════════════════════════════════
-// PATCH JS — Replace everything after PRODUCTS=[...]; in original
-// Fixes: (1) sort bug [3]=price [4]=cat, (2) global price lookup
-// ══════════════════════════════════════════════════════════════════
-
-const EXCHR = 16200; // IDR per USD, April 2026
-
-// ── Global Price Reference Database ─────────────────────────────
-// Format: { kw:[keywords to match], price:USD, src:source, note:info }
-// Matching: ALL keywords in kw[] must appear in "brand + name" string
-const GPDB = [
-  // ─ TaylorMade Drivers
-  {kw:['taylormade','qi35','driver'],p:599,s:'taylormade.com',n:'2025'},
-  {kw:['taylormade','qi4d','driver'],p:549,s:'taylormade.com',n:'2026'},
-  {kw:['taylormade','qi10','driver'],p:499,s:'golfgalaxy.com',n:'2024'},
-  {kw:['taylormade','qi','driver'],p:449,s:'golfgalaxy.com',n:'est.'},
-  {kw:['taylormade','stealth 2','driver'],p:429,s:'golfgalaxy.com',n:'2023'},
-  {kw:['taylormade','stealth','driver'],p:399,s:'golfgalaxy.com',n:''},
-  // ─ TaylorMade Irons
-  {kw:['taylormade','p790'],p:1499,s:'taylormade.com',n:'7pc 4-PW'},
-  {kw:['taylormade','p770'],p:1299,s:'taylormade.com',n:'7pc 4-PW'},
-  {kw:['taylormade','p7cb'],p:1299,s:'taylormade.com',n:'6pc 5-P'},
-  {kw:['taylormade','p8cb'],p:1299,s:'taylormade.com',n:'6pc'},
-  {kw:['taylormade','p7mb'],p:1199,s:'taylormade.com',n:'6pc'},
-  {kw:['taylormade','qi35','iron'],p:999,s:'taylormade.com',n:'6pc'},
-  {kw:['taylormade','qi max','iron'],p:949,s:'golfgalaxy.com',n:'6pc'},
-  {kw:['taylormade','qi','iron'],p:799,s:'golfgalaxy.com',n:'6pc est.'},
-  {kw:['taylormade','stealth','iron'],p:699,s:'golfgalaxy.com',n:'6pc'},
-  // ─ TaylorMade Wedge
-  {kw:['taylormade','milled grind 5','wedge'],p:179,s:'taylormade.com',n:''},
-  {kw:['taylormade','milled grind 4','wedge'],p:159,s:'taylormade.com',n:''},
-  {kw:['taylormade','milled grind hi-toe','wedge'],p:179,s:'taylormade.com',n:''},
-  // ─ TaylorMade Putter
-  {kw:['taylormade','spider tour','putter'],p:349,s:'taylormade.com',n:''},
-  {kw:['taylormade','spider gt','putter'],p:249,s:'golfgalaxy.com',n:''},
-  {kw:['taylormade','tp black','putter'],p:199,s:'taylormade.com',n:''},
-  // ─ Callaway Drivers
-  {kw:['callaway','quantum max fast','driver'],p:599,s:'callaway.com',n:'2026'},
-  {kw:['callaway','quantum max','driver'],p:549,s:'callaway.com',n:'2026'},
-  {kw:['callaway','elyte triple diamond','driver'],p:549,s:'callaway.com',n:'2025'},
-  {kw:['callaway','elyte','driver'],p:499,s:'callaway.com',n:'2025'},
-  {kw:['callaway','paradym ai smoke','driver'],p:499,s:'callaway.com',n:'2024'},
-  {kw:['callaway','paradym','driver'],p:449,s:'golfgalaxy.com',n:''},
-  {kw:['callaway','rogue st max','driver'],p:349,s:'golfgalaxy.com',n:'2022'},
-  // ─ Callaway Irons
-  {kw:['callaway','quantum max','iron'],p:999,s:'callaway.com',n:'6pc'},
-  {kw:['callaway','elyte','iron'],p:899,s:'callaway.com',n:'6pc'},
-  {kw:['callaway','paradym ai smoke','iron'],p:999,s:'callaway.com',n:'6pc'},
-  {kw:['callaway','apex ai300','iron'],p:1299,s:'callaway.com',n:'6pc'},
-  {kw:['callaway','apex','iron'],p:1099,s:'golfgalaxy.com',n:'6pc'},
-  {kw:['callaway','rogue st','iron'],p:749,s:'golfgalaxy.com',n:'6pc'},
-  // ─ Callaway Wedge/Putter
-  {kw:['callaway','opus','wedge'],p:159,s:'callaway.com',n:''},
-  {kw:['callaway','jaws','wedge'],p:169,s:'callaway.com',n:''},
-  {kw:['odyssey','ai-dual square 2','putter'],p:329,s:'callaway.com',n:'2026'},
-  {kw:['odyssey','ai-dual','putter'],p:299,s:'callaway.com',n:'2026'},
-  {kw:['odyssey','ai-one milled','putter'],p:399,s:'callaway.com',n:''},
-  {kw:['odyssey','ai-one','putter'],p:279,s:'callaway.com',n:''},
-  {kw:['odyssey','dfx','putter'],p:149,s:'callaway.com',n:''},
-  // ─ Ping Drivers
-  {kw:['ping','g440 k','driver'],p:649,s:'ping.com',n:'2026'},
-  {kw:['ping','g440','driver'],p:599,s:'ping.com',n:'2025'},
-  {kw:['ping','g430 max 10k','driver'],p:549,s:'ping.com',n:'2024'},
-  {kw:['ping','g430','driver'],p:499,s:'golfgalaxy.com',n:''},
-  {kw:['ping','g425','driver'],p:449,s:'golfgalaxy.com',n:''},
-  // ─ Ping Irons
-  {kw:['ping','g440 hl','iron'],p:1299,s:'ping.com',n:'6pc'},
-  {kw:['ping','g440','iron'],p:1199,s:'ping.com',n:'6pc'},
-  {kw:['ping','i240','iron'],p:1399,s:'ping.com',n:'2025'},
-  {kw:['ping','blueprint','iron'],p:1499,s:'ping.com',n:'6pc forged'},
-  {kw:['ping','i530','iron'],p:1199,s:'ping.com',n:'6pc'},
-  {kw:['ping','g730','iron'],p:1099,s:'ping.com',n:'6pc'},
-  {kw:['ping','g430','iron'],p:999,s:'ping.com',n:'6pc'},
-  {kw:['ping','i525','iron'],p:1099,s:'golfgalaxy.com',n:''},
-  {kw:['ping','i230','iron'],p:1199,s:'ping.com',n:'6pc'},
-  {kw:['ping','g710','iron'],p:999,s:'golfgalaxy.com',n:'6pc'},
-  // ─ Ping Wedge/Putter
-  {kw:['ping','s259','wedge'],p:229,s:'ping.com',n:'2026'},
-  {kw:['ping','s159','wedge'],p:219,s:'ping.com',n:'2024'},
-  {kw:['ping','bunkr','wedge'],p:229,s:'ping.com',n:''},
-  {kw:['ping','glide 4','wedge'],p:169,s:'ping.com',n:''},
-  {kw:['ping','pld milled anser 30','putter'],p:449,s:'ping.com',n:'2025'},
-  {kw:['ping','pld milled','putter'],p:449,s:'ping.com',n:''},
-  {kw:['ping','scottsdale anser','putter'],p:329,s:'ping.com',n:''},
-  {kw:['ping','scottsdale','putter'],p:329,s:'ping.com',n:''},
-  // ─ Titleist Drivers
-  {kw:['titleist','gt2','driver'],p:549,s:'titleist.com',n:'2024'},
-  {kw:['titleist','gt1','driver'],p:549,s:'titleist.com',n:'2024'},
-  {kw:['titleist','gt3','driver'],p:549,s:'titleist.com',n:'2024'},
-  {kw:['titleist','tsr3','driver'],p:499,s:'golfgalaxy.com',n:''},
-  {kw:['titleist','tsr2','driver'],p:499,s:'golfgalaxy.com',n:''},
-  // ─ Titleist Irons
-  {kw:['titleist','t100'],p:1499,s:'titleist.com',n:'7pc 4-PW'},
-  {kw:['titleist','t150'],p:1399,s:'titleist.com',n:'7pc'},
-  {kw:['titleist','t200'],p:1399,s:'titleist.com',n:'7pc'},
-  {kw:['titleist','t250'],p:1299,s:'titleist.com',n:'7pc'},
-  {kw:['titleist','t350'],p:1199,s:'titleist.com',n:'7pc'},
-  // ─ Titleist Wedge/Putter
-  {kw:['titleist','vokey sm11','wedge'],p:199,s:'titleist.com',n:'2025'},
-  {kw:['titleist','vokey sm10','wedge'],p:179,s:'titleist.com',n:'2024'},
-  {kw:['titleist','vokey sm9','wedge'],p:159,s:'golfgalaxy.com',n:''},
-  {kw:['titleist','phantom black','putter'],p:499,s:'titleist.com',n:'2025 limited'},
-  {kw:['titleist','studio style','putter'],p:599,s:'titleist.com',n:'2025'},
-  {kw:['titleist','phantom x','putter'],p:399,s:'titleist.com',n:''},
-  // ─ Cobra
-  {kw:['cobra','ds-adapt','driver'],p:499,s:'cobragolf.com',n:'2025'},
-  {kw:['cobra','ds adapt','driver'],p:499,s:'cobragolf.com',n:''},
-  {kw:['cobra','optm','driver'],p:549,s:'cobragolf.com',n:'2026'},
-  {kw:['cobra','darkspeed','driver'],p:449,s:'cobragolf.com',n:'2024'},
-  {kw:['cobra','aerojet','driver'],p:399,s:'cobragolf.com',n:'2023'},
-  {kw:['cobra','ds-adapt','iron'],p:1099,s:'cobragolf.com',n:'6pc'},
-  {kw:['cobra','king tec x','iron'],p:1099,s:'cobragolf.com',n:'6pc'},
-  {kw:['cobra','king tec','iron'],p:999,s:'cobragolf.com',n:'6pc'},
-  {kw:['cobra','king forged tec','iron'],p:1099,s:'cobragolf.com',n:'6pc'},
-  {kw:['cobra','darkspeed','iron'],p:999,s:'cobragolf.com',n:'6pc'},
-  {kw:['cobra','snakebite','wedge'],p:129,s:'cobragolf.com',n:''},
-  {kw:['cobra','grandsport','putter'],p:349,s:'cobragolf.com',n:''},
-  // ─ Cleveland
-  {kw:['cleveland','rtz zipcore','wedge'],p:149,s:'clevelandgolf.com',n:'2025'},
-  {kw:['cleveland','rtx 6','wedge'],p:169,s:'clevelandgolf.com',n:''},
-  {kw:['cleveland','cbx 4','wedge'],p:149,s:'clevelandgolf.com',n:''},
-  {kw:['cleveland','smart sole','wedge'],p:119,s:'clevelandgolf.com',n:''},
-  {kw:['cleveland','hb soft milled','putter'],p:149,s:'clevelandgolf.com',n:''},
-  // ─ Mizuno
-  {kw:['mizuno','jpx-925 hot metal','iron'],p:799,s:'mizunogolf.com',n:'6pc'},
-  {kw:['mizuno','jpx-925 forged','iron'],p:999,s:'mizunogolf.com',n:'6pc'},
-  {kw:['mizuno','mp 243','iron'],p:999,s:'mizunogolf.com',n:'6pc'},
-  {kw:['mizuno','pro 243','iron'],p:1099,s:'mizunogolf.com',n:'6pc'},
-  {kw:['mizuno','pro 223','iron'],p:1099,s:'mizunogolf.com',n:'6pc'},
-  {kw:['mizuno','pro t-1','wedge'],p:149,s:'mizunogolf.com',n:''},
-  {kw:['mizuno','t22','wedge'],p:129,s:'mizunogolf.com',n:''},
-  {kw:['mizuno','m.craft omoi','putter'],p:279,s:'mizunogolf.com',n:''},
-  // ─ Srixon
-  {kw:['srixon','zxi5','iron'],p:1099,s:'srixon.com',n:'2025'},
-  {kw:['srixon','zxi4','iron'],p:999,s:'srixon.com',n:'2025'},
-  {kw:['srixon','zx5','iron'],p:899,s:'srixon.com',n:''},
-  {kw:['srixon','zx4','iron'],p:799,s:'golfgalaxy.com',n:''},
-  // ─ XXIO
-  {kw:['xxio 14','driver'],p:699,s:'srixon.com',n:'2025/2026'},
-  {kw:['xxio 13','driver'],p:599,s:'srixon.com',n:'2024'},
-  {kw:['xxio prime 13','driver'],p:999,s:'srixon.com',n:'2025'},
-  {kw:['xxio 14','iron'],p:1599,s:'srixon.com',n:'7pc'},
-  {kw:['xxio 13','iron'],p:1499,s:'srixon.com',n:'7pc'},
-  {kw:['xxio prime 12','iron'],p:1799,s:'srixon.com',n:'7pc'},
-  {kw:['xxio prime 13','iron'],p:1899,s:'srixon.com',n:'7pc'},
-  // ─ Honma — Beres premium line
-  {kw:['honma','beres 10','5-star'],p:6500,s:'honmagolf.com',n:'Ultra premium JP'},
-  {kw:['honma','beres 10','4-star'],p:3500,s:'honmagolf.com',n:'Premium JP'},
-  {kw:['honma','beres 10','3-star'],p:1500,s:'honmagolf.com',n:'JP market'},
-  {kw:['honma','beres 09','5-star'],p:5500,s:'honmagolf.com',n:'Ultra premium'},
-  {kw:['honma','beres 09','4-star'],p:3000,s:'honmagolf.com',n:'Premium JP'},
-  {kw:['honma','beres 09','3-star'],p:1200,s:'honmagolf.com',n:'JP market'},
-  {kw:['honma','beres 09','2-star'],p:700,s:'honmagolf.com',n:''},
-  {kw:['honma','beres 09 black'],p:650,s:'honmagolf.com',n:''},
-  {kw:['honma','tw767 ls','driver'],p:499,s:'honmagolf.com',n:'2025'},
-  {kw:['honma','tw767','driver'],p:449,s:'honmagolf.com',n:'2025'},
-  {kw:['honma','t//world tour v','iron'],p:999,s:'honmagolf.com',n:'6pc'},
-  {kw:['honma','tw hx','iron'],p:1099,s:'honmagolf.com',n:'6pc'},
-  {kw:['honma','tw px','iron'],p:999,s:'honmagolf.com',n:'6pc'},
-  // ─ Majesty (Japan premium)
-  {kw:['majesty','sublime 2023','package'],p:18000,s:'majestygolf.jp',n:'Full set ultra premium'},
-  {kw:['majesty','sublime'],p:3500,s:'majestygolf.jp',n:'Est. per club avg'},
-  {kw:['majesty','prestigio 14'],p:2500,s:'majestygolf.jp',n:'2026 model'},
-  {kw:['majesty','prestigio 13'],p:2000,s:'majestygolf.jp',n:'2024 model'},
-  {kw:['majesty','royale'],p:1200,s:'majestygolf.jp',n:'2025 model'},
-  // ─ PXG
-  {kw:['pxg','0311','gen 6','driver'],p:449,s:'pxg.com',n:''},
-  {kw:['pxg','0311','driver'],p:399,s:'pxg.com',n:''},
-  {kw:['pxg','0211','driver'],p:299,s:'pxg.com',n:''},
-  {kw:['pxg','0311p','gen 6','iron'],p:1399,s:'pxg.com',n:'6pc'},
-  {kw:['pxg','0311xp','gen 6','iron'],p:1199,s:'pxg.com',n:'6pc'},
-  {kw:['pxg','0211','iron'],p:699,s:'pxg.com',n:'6pc'},
-  {kw:['pxg','sugardaddy','wedge'],p:249,s:'pxg.com',n:''},
-  // ─ Miura (Japan forged premium)
-  {kw:['miura','cb-302','iron'],p:3200,s:'miuragolf.com',n:'6pc'},
-  {kw:['miura','tc-202','iron'],p:3000,s:'miuragolf.com',n:'6pc'},
-  {kw:['miura','km-700','iron'],p:2800,s:'miuragolf.com',n:'6pc'},
-  {kw:['miura','cb-301','iron'],p:2500,s:'miuragolf.com',n:'6pc'},
-  {kw:['miura','tc-101','iron'],p:2200,s:'miuragolf.com',n:'6pc'},
-  {kw:['miura','k-grind','wedge'],p:279,s:'miuragolf.com',n:'forged'},
-  {kw:['miura','forged wedge'],p:249,s:'miuragolf.com',n:''},
-  // ─ Yamaha (Japan market)
-  {kw:['yamaha','rmx dd-1','iron'],p:899,s:'yamahagolf.co.jp',n:'JP market 6pc'},
-  {kw:['yamaha','rmx dd-2','iron'],p:899,s:'yamahagolf.co.jp',n:'JP market 6pc'},
-  {kw:['yamaha','inpres drivestar type','iron'],p:1399,s:'yamahagolf.co.jp',n:'JP 6pc'},
-  {kw:['yamaha','inpres drivestar','iron'],p:999,s:'yamahagolf.co.jp',n:'JP 6pc'},
-  {kw:['yamaha','rmx dd','driver'],p:449,s:'yamahagolf.co.jp',n:'JP market'},
-  {kw:['yamaha','inpres drivestar','driver'],p:499,s:'yamahagolf.co.jp',n:'JP market'},
-  // ─ Evnroll
-  {kw:['evnroll','zero z','putter'],p:499,s:'evnroll.com',n:'2025/2026'},
-  {kw:['evnroll','er2','putter'],p:299,s:'evnroll.com',n:''},
-  {kw:['evnroll','er1','putter'],p:299,s:'evnroll.com',n:''},
-  {kw:['evnroll','er5','putter'],p:349,s:'evnroll.com',n:''},
-  // ─ Bettinardi
-  {kw:['bettinardi','dass','putter'],p:1800,s:'bettinardi.com',n:'Limited edition'},
-  {kw:['bettinardi','studio stock','putter'],p:449,s:'bettinardi.com',n:''},
-  {kw:['bettinardi','inovai','putter'],p:399,s:'bettinardi.com',n:''},
-  // ─ Scotty Cameron (under "Various")
-  {kw:['scotty cameron','studio style','putter'],p:699,s:'titleist.com',n:'2025'},
-  {kw:['scotty cameron','phantom','putter'],p:599,s:'titleist.com',n:'2024'},
-  {kw:['scotty cameron','special select','putter'],p:449,s:'titleist.com',n:''},
-  {kw:['scotty cameron','select newport','putter'],p:379,s:'golfgalaxy.com',n:''},
-  // ─ LAB Golf
-  {kw:['lab golf','df3','putter'],p:699,s:'labgolf.com',n:''},
-  {kw:['lab golf','link 1','putter'],p:699,s:'labgolf.com',n:''},
-  {kw:['lab golf','oz.1','putter'],p:799,s:'labgolf.com',n:''},
-  {kw:['lab golf','mezz','putter'],p:549,s:'labgolf.com',n:''},
-  // ─ Autoflex Shafts
-  {kw:['autoflex','sf505xx'],p:529,s:'autoflex.co.kr',n:'Shaft only'},
-  {kw:['autoflex','sf505x'],p:529,s:'autoflex.co.kr',n:'Shaft only'},
-  {kw:['autoflex','sf505'],p:479,s:'autoflex.co.kr',n:'Shaft only'},
-  // ─ Onoff (Japan)
-  {kw:['onoff','aka tungsten','iron'],p:899,s:'daiwa-seiko.co.jp',n:'JP market 6pc'},
-  {kw:['onoff','aka','driver'],p:549,s:'daiwa-seiko.co.jp',n:'JP market'},
-  {kw:['onoff','kuro','driver'],p:549,s:'daiwa-seiko.co.jp',n:'JP market'},
-  // ─ Maruman (Japan)
-  {kw:['maruman','sg m230','iron'],p:999,s:'maruman.co.jp',n:'JP market 6pc'},
-  {kw:['maruman','sg m230','driver'],p:599,s:'maruman.co.jp',n:'JP market'},
-];
-
-// ── Fuzzy lookup ────────────────────────────────────────────────
-function lookupGlobalPrice(brand, name) {
-  const key = (brand + ' ' + name).toLowerCase();
-  let bestMatch = null;
-  let bestScore = 0;
-  for (const entry of GPDB) {
-    const matched = entry.kw.filter(k => key.includes(k)).length;
-    if (matched === 0) continue;
-    const score = matched / entry.kw.length;
-    // Require at least 80% keyword coverage
-    if (score >= 0.8 && score > bestScore) {
-      bestScore = score;
-      bestMatch = entry;
-    }
-  }
-  return bestMatch;
-}
-
-// ── Brand tier fallback (if no exact match) ─────────────────────
-const BRAND_TIER = {
-  // [minRatio, maxRatio, label]
-  'honma':  [0.70, 1.20, 'JP premium'],
-  'majesty': [0.65, 1.10, 'JP ultra premium'],
-  'miura':  [0.65, 1.10, 'JP forged premium'],
-  'taylormade': [0.80, 1.10, 'US premium'],
-  'callaway': [0.80, 1.10, 'US premium'],
-  'ping':   [0.80, 1.10, 'US premium'],
-  'titleist':[0.80, 1.10, 'US premium'],
-  'cobra':  [0.80, 1.10, 'US premium'],
-  'pxg':    [0.75, 1.05, 'US premium'],
-  'xxio':   [0.70, 1.05, 'JP premium'],
-  'srixon': [0.80, 1.10, 'US/JP'],
-  'mizuno': [0.80, 1.10, 'JP standard'],
-  'cleveland':[0.85, 1.15, 'US standard'],
-  'yamaha': [0.70, 1.05, 'JP market'],
-  'onoff':  [0.70, 1.10, 'JP market'],
-  'maruman':[0.70, 1.10, 'JP market'],
-  'odyssey':[0.80, 1.15, 'US standard'],
-  'evnroll':[0.75, 1.10, 'US boutique'],
-  'bettinardi':[0.65, 1.00, 'US boutique'],
-};
-
-function analyzePrice(btn) {
-  const td = btn.closest('td');
-  const store  = btn.dataset.store;
-  const brand  = btn.dataset.brand;
-  const name   = btn.dataset.name;
-  const price  = parseInt(btn.dataset.price);
-  const cat    = btn.dataset.cat;
-
-  btn.disabled = true;
-  btn.textContent = '🔍 Mencari...';
-
-  // Simulate slight delay for UX feel
-  setTimeout(() => {
-    const match = lookupGlobalPrice(brand, name);
-    const estCIF = Math.round(price * 0.40 / EXCHR);
-
-    if (match) {
-      const globalUSD = match.p;
-      const globalIDR = globalUSD * EXCHR;
-      const ratio = price / globalIDR;
-      const minCIF = Math.round(globalUSD * 0.35);
-      const flagBC = Math.round(globalUSD * 0.22);
-      const ratioStr = (ratio * 100).toFixed(0);
-
-      let cls, lbl, icon, bgColor;
-      if (ratio < 0.45) {
-        cls='flag-red'; lbl='ANOMALI HARGA'; icon='🔴';
-        bgColor='rgba(192,57,43,0.12)';
-      } else if (ratio < 0.72) {
-        cls='flag-yellow'; lbl='WASPADA'; icon='🟡';
-        bgColor='rgba(230,126,34,0.08)';
-      } else if (ratio < 1.35) {
-        cls='flag-green'; lbl='WAJAR'; icon='🟢';
-        bgColor='rgba(39,174,96,0.08)';
-      } else {
-        cls='flag-yellow'; lbl='LEBIH TINGGI'; icon='⚠️';
-        bgColor='rgba(230,126,34,0.08)';
-      }
-
-      td.style.background = bgColor;
-      td.innerHTML = `<div class="flag-result">
-        <div class="${cls}" style="font-size:10px;margin-bottom:3px">${icon} ${lbl}</div>
-        <div class="flag-dim">Referensi global: <strong style="color:rgba(248,244,232,0.85)">USD $${globalUSD.toLocaleString()}</strong></div>
-        <div class="flag-dim">IDR vs global: <strong style="color:rgba(248,244,232,0.85)">${ratioStr}%</strong></div>
-        <div class="flag-dim">Est.CIF: <strong>$${estCIF}</strong> · Min pabean: <strong style="color:#ff8888">≤$${flagBC}</strong></div>
-        <div style="font-size:8px;color:rgba(248,244,232,0.3);margin-top:2px">ref: ${match.s} · ${match.n}</div>
-      </div>`;
-    } else {
-      // Tier fallback
-      const brandKey = brand.toLowerCase().trim();
-      const tier = BRAND_TIER[brandKey];
-      if (tier) {
-        const [lo, hi, tierName] = tier;
-        const estGlobalLo = Math.round(price / (hi * EXCHR));
-        const estGlobalHi = Math.round(price / (lo * EXCHR));
-        const estCIF = Math.round(price * 0.40 / EXCHR);
-        const minCIF = Math.round(estGlobalLo * 0.35);
-        td.innerHTML = `<div class="flag-result">
-          <div class="flag-yellow" style="font-size:10px;margin-bottom:3px">⚠️ ESTIMASI (match terbatas)</div>
-          <div class="flag-dim">Est. global: <strong style="color:rgba(248,244,232,0.85)">$${estGlobalLo.toLocaleString()}–$${estGlobalHi.toLocaleString()}</strong></div>
-          <div class="flag-dim">Tier: ${tierName} · Est.CIF: <strong>$${estCIF}</strong></div>
-          <div class="flag-dim">Min pabean est.: <strong style="color:#ff8888">≤$${minCIF}</strong></div>
-          <div style="font-size:8px;color:rgba(248,244,232,0.3);margin-top:2px">perlu verifikasi manual</div>
-        </div>`;
-      } else {
-        td.innerHTML = `<div class="flag-result"><div class="flag-na">Produk niche/custom — verifikasi manual</div></div>`;
-      }
-    }
-  }, 150);
-}
-
-// ── Cat colors & store colors ───────────────────────────────────
-const CAT_CLASS = {
-  "Driver":"cat-driver","Iron Set":"cat-iron","Hybrid/Rescue":"cat-hybrid",
-  "Fairway":"cat-fairway","Wedge":"cat-wedge","Putter":"cat-putter",
-  "Package Set":"cat-package","Head Only":"cat-headonly","Shaft/Komponen":"cat-shaft","Other":"cat-other"
-};
-const STORE_DOT = {
-  "MST Golf Indonesia":"#e05555","Leonian Golf Indonesia":"#4db87a","TopGolf Indonesia":"#b07fd4",
-  "Golfellas (Pre-owned)":"#8a8a8a","Golfmart (Shopee)":"#e8a030","Bob's Golf (Shopee)":"#d4853a","Hobby Golf (Tokopedia)":"#5ba8d0"
-};
-
-let filtered = [...PRODUCTS];
-let currentPage = 1;
-const PAGE_SIZE = 100;
-let sortCol = -1, sortDir = 1;
-let activeStores = new Set([
-  "MST Golf Indonesia","Leonian Golf Indonesia","TopGolf Indonesia",
-  "Golfellas (Pre-owned)","Golfmart (Shopee)","Bob's Golf (Shopee)","Hobby Golf (Tokopedia)"
-]);
-
-function formatPrice(n) {
-  return 'Rp ' + n.toLocaleString('id-ID');
-}
 function estCIF(priceIDR) {
   return Math.round(priceIDR * 0.40 / EXCHR);
 }
 
+// ── Analisis Harga Global via Database Lokal ─────────────────────
+function analyzePrice(btn, rowKey) {
+  const [store, brand, name, priceIDR, cat] = rowKey;
+  const cell = btn.closest('td');
+  const cacheKey = `${brand}|${name}|${cat}`;
+
+  if (globalPriceCache[cacheKey]) {
+    renderFlagResult(cell, globalPriceCache[cacheKey], priceIDR);
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = '⏳ Cek Lokal...';
+
+  const result = findLocalGlobalPrice(brand, name, cat);
+  globalPriceCache[cacheKey] = result;
+
+  window.setTimeout(() => {
+    renderFlagResult(cell, result, priceIDR);
+  }, 80);
+}
+
+function renderFlagResult(cell, result, priceIDR) {
+  if (!result.found || !result.priceUSD) {
+    cell.innerHTML = `<div class="flag-result">
+      <div class="flag-na">Belum ada benchmark lokal</div>
+      <div class="flag-dim" style="margin-top:3px">Tambahkan model ini ke DB lokal HTML</div>
+    </div>`;
+    return;
+  }
+
+  const globalUSD = Number(result.priceUSD);
+  const globalIDR = globalUSD * EXCHR;
+  const ratio = priceIDR / globalIDR;
+  const estCIFusd = Math.round(priceIDR * 0.40 / EXCHR);
+  const flagBCusd = Math.round(globalUSD * 0.22);
+
+  let flagClass, flagLabel, flagIcon;
+  if (ratio < 0.45) {
+    flagClass = 'flag-red'; flagLabel = 'ANOMALI HARGA'; flagIcon = '🔴';
+  } else if (ratio < 0.70) {
+    flagClass = 'flag-yellow'; flagLabel = 'WASPADA'; flagIcon = '🟡';
+  } else {
+    flagClass = 'flag-green'; flagLabel = 'WAJAR'; flagIcon = '🟢';
+  }
+
+  const confColor =
+    result.confidence === 'high' ? '#4db87a' :
+    result.confidence === 'medium' ? '#e8a030' : '#9aa1a6';
+
+  const note = result.note ? `<div class="flag-dim" style="font-size:8px;margin-top:2px">${result.note}</div>` : '';
+  const meta = [
+    result.confidence ? `konfiden: ${result.confidence}` : null,
+    result.source || null,
+    result.checked ? `cek: ${result.checked}` : null
+  ].filter(Boolean).join(' · ');
+
+  cell.innerHTML = `<div class="flag-result">
+    <div class="${flagClass}">${flagIcon} ${flagLabel}</div>
+    <div class="flag-dim">Global: <strong style="color:rgba(248,244,232,0.85)">${moneyUSD(globalUSD)}</strong></div>
+    <div class="flag-dim">IDR vs Global: <strong style="color:rgba(248,244,232,0.85)">${(ratio * 100).toFixed(0)}%</strong></div>
+    <div class="flag-dim">Est. CIF: <strong>${moneyUSD(estCIFusd)}</strong> | Min BC: <strong style="color:#ff8888">≤${moneyUSD(flagBCusd)}</strong></div>
+    <div style="font-size:8px;color:${confColor};margin-top:2px">${meta}</div>
+    ${note}
+  </div>`;
+}
+
+// ── Render & Filters ────────────────────────────────────────────
 function applyFilters() {
   const q = document.getElementById('q').value.toLowerCase().trim();
   const fStore = document.getElementById('fStore').value;
@@ -956,23 +2256,23 @@ function applyFilters() {
 }
 
 function doSort() {
-  // data[3]=price(number), data[4]=cat(string)
   filtered.sort((a,b) => {
     const av = a[sortCol], bv = b[sortCol];
-    if (typeof av === 'number' && typeof bv === 'number') return (av - bv) * sortDir;
-    return String(av).localeCompare(String(bv), 'id') * sortDir;
+    if (typeof av === 'number') return (av - bv) * sortDir;
+    return String(av).localeCompare(String(bv)) * sortDir;
   });
 }
 
 function sortBy(col) {
-  // col 3 = price, col 4 = category (matches data array indices)
   if (sortCol === col) sortDir *= -1;
   else { sortCol = col; sortDir = 1; }
-  document.querySelectorAll('thead th').forEach(th => th.classList.remove('sort-asc','sort-desc'));
-  // Map data col to visual th index: data[0]→th0, data[1]→th1, data[2]→th2, data[4]→th3, data[3]→th4
-  const thMap = {0:0, 1:1, 2:2, 3:4, 4:3};
+  document.querySelectorAll('thead th').forEach((th,i) => {
+    th.classList.remove('sort-asc','sort-desc');
+  });
+  // Map col to th index: 0→0, 1→1, 2→2, 4→3(Kategori), 3→4(Harga)
+  const thIdx = col === 3 ? 4 : col === 4 ? 3 : col;
   const ths = document.querySelectorAll('thead th');
-  if (ths[thMap[col]]) ths[thMap[col]].classList.add(sortDir===1?'sort-asc':'sort-desc');
+  if (ths[thIdx]) ths[thIdx].classList.add(sortDir===1?'sort-asc':'sort-desc');
   doSort();
   render();
 }
@@ -983,45 +2283,37 @@ function render() {
   const start = (currentPage-1)*PAGE_SIZE;
   const page = filtered.slice(start, Math.min(start+PAGE_SIZE, filtered.length));
 
-  if (!page.length) {
+  if (filtered.length === 0) {
     tbody.innerHTML = '';
     noRes.style.display = 'block';
   } else {
     noRes.style.display = 'none';
-    tbody.innerHTML = page.map(p => {
+    tbody.innerHTML = page.map((p,ri) => {
       const [store,brand,name,price,cat] = p;
-      const isPreowned = store.includes('Pre-owned') || store.includes('Hobby Golf') || store.includes("Bob's");
-      const dimCls = isPreowned ? ' td-preowned' : '';
+      const preowned = store.includes('Pre-owned') || store.includes('Hobby Golf') || store.includes("Bob's");
+      const dimCls = preowned ? ' td-preowned' : '';
       const dot = STORE_DOT[store] || '#888';
-      const catCls = CAT_CLASS[cat] || 'cat-other';
+      const catClass = CAT_CLASS[cat] || 'cat-other';
       const cif = estCIF(price);
 
-      // FIX: use data-* attributes to avoid JSON/quote escaping issues in onclick
-      const esc = s => String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;');
-      const flagCell = isPreowned
-        ? `<td class="td-flag"><span class="flag-na" style="font-size:10px">N/A · pre-owned / marketplace</span></td>`
-        : `<td class="td-flag">
-            <button class="btn-cek"
-              data-store="${esc(store)}"
-              data-brand="${esc(brand)}"
-              data-name="${esc(name)}"
-              data-price="${price}"
-              data-cat="${esc(cat)}"
-              onclick="analyzePrice(this)">🌐 Cek Global
-            </button>
-           </td>`;
+      // CIF cell
+      const cifCell = preowned
+        ? `<td style="text-align:right;color:rgba(248,244,232,0.25);font-size:10px;font-family:'DM Mono',monospace">— pre-owned —</td>`
+        : `<td style="text-align:right;font-family:'DM Mono',monospace;font-size:11px;color:rgba(248,244,232,0.6)">~$${cif}</td>`;
+
+      // Flag cell: show button for resmi stores, N/A for pre-owned/marketplace
+      const rowKey = JSON.stringify([store,brand,name,price,cat]).replace(/'/g,"\\'");
+      const flagCell = preowned
+        ? `<td class="td-flag"><span class="flag-na">N/A — bukan produk resmi impor</span></td>`
+        : `<td class="td-flag"><button class="btn-cek" onclick="analyzePrice(this,${rowKey})">🌐 Cek Global</button></td>`;
 
       return `<tr>
-        <td class="td-store${dimCls}">
-          <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${dot};margin-right:5px;vertical-align:middle;box-shadow:0 0 4px ${dot}66"></span>${store}
-        </td>
+        <td class="td-store${dimCls}"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${dot};margin-right:5px;vertical-align:middle;box-shadow:0 0 4px ${dot}66"></span>${store}</td>
         <td class="td-brand${dimCls}">${brand}</td>
         <td class="td-name${dimCls}">${name}</td>
-        <td class="td-cat${dimCls}"><span class="${catCls}">${cat}</span></td>
+        <td class="td-cat${dimCls}"><span class="${catClass}">${cat}</span></td>
         <td class="td-price${dimCls}">${formatPrice(price)}</td>
-        <td style="text-align:right;font-family:'DM Mono',monospace;font-size:11px;color:rgba(248,244,232,${isPreowned?'0.2':'0.55'})">
-          ${isPreowned ? '—' : '~$'+cif}
-        </td>
+        ${cifCell}
         ${flagCell}
       </tr>`;
     }).join('');
@@ -1045,10 +2337,8 @@ function renderPagination() {
   pg.innerHTML =
     `<span class="page-info">Hal ${currentPage}/${totalPages} · ${total.toLocaleString()} produk</span>` +
     `<button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>← Prev</button>` +
-    range.map(r => r==='...'
-      ? `<span class="page-info">…</span>`
-      : `<button class="page-btn ${r===currentPage?'active':''}" onclick="goPage(${r})">${r}</button>`
-    ).join('') +
+    range.map(r => r==='...' ? `<span class="page-info">…</span>` :
+      `<button class="page-btn ${r===currentPage?'active':''}" onclick="goPage(${r})">${r}</button>`).join('') +
     `<button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===totalPages?'disabled':''}>Next →</button>`;
 }
 
@@ -1078,370 +2368,14 @@ function resetFilters() {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
-  activeStores = new Set([
-    "MST Golf Indonesia","Leonian Golf Indonesia","TopGolf Indonesia",
-    "Golfellas (Pre-owned)","Golfmart (Shopee)","Bob's Golf (Shopee)","Hobby Golf (Tokopedia)"
-  ]);
+  activeStores = new Set(["MST Golf Indonesia","Leonian Golf Indonesia","TopGolf Indonesia","Golfellas (Pre-owned)","Golfmart (Shopee)","Bob's Golf (Shopee)","Hobby Golf (Tokopedia)"]);
   document.querySelectorAll('.store-pill').forEach(p => p.classList.replace('inactive','active'));
   applyFilters();
 }
 
 applyFilters();
 </script>
-  <!-- ══════════════════════════════════════════════════════
-  CARA PAKAI: Tempel blok ini tepat sebelum </body>
-  di file HTML original. JANGAN edit script yang lama.
-  ══════════════════════════════════════════════════════ -->
-<style>
-.btn-cek{background:rgba(91,168,208,0.15);border:1px solid rgba(91,168,208,0.3);border-radius:5px;padding:4px 10px;font-family:'DM Mono',monospace;font-size:9px;color:#5ba8d0;cursor:pointer;white-space:nowrap}
-.btn-cek:hover{background:rgba(91,168,208,0.28)}
-.btn-cek:disabled{opacity:.45;cursor:not-allowed}
-.fr-box{font-family:'DM Mono',monospace;font-size:9px;line-height:1.55}
-.fr-red{color:#ff4d4d;font-weight:700}
-.fr-yel{color:#e8a030;font-weight:700}
-.fr-grn{color:#4db87a;font-weight:700}
-.fr-dim{color:rgba(248,244,232,0.45)}
-.fr-na {color:rgba(248,244,232,0.25);font-style:italic}
-</style>
-
-<script>
-(function() {
-// ── 1. Harga referensi global (USD) ──────────────────────────────
-const GPDB = [
-  // TaylorMade Drivers
-  {kw:['taylormade','qi35','driver'],p:599,s:'taylormade.com'},
-  {kw:['taylormade','qi4d','driver'],p:549,s:'taylormade.com'},
-  {kw:['taylormade','qi10','driver'],p:499,s:'golfgalaxy.com'},
-  {kw:['taylormade','stealth 2','driver'],p:429,s:'golfgalaxy.com'},
-  {kw:['taylormade','stealth','driver'],p:399,s:'golfgalaxy.com'},
-  // TaylorMade Irons
-  {kw:['taylormade','p790'],p:1499,s:'taylormade.com'},
-  {kw:['taylormade','p770'],p:1299,s:'taylormade.com'},
-  {kw:['taylormade','p7cb'],p:1299,s:'taylormade.com'},
-  {kw:['taylormade','p8cb'],p:1299,s:'taylormade.com'},
-  {kw:['taylormade','p7mb'],p:1199,s:'taylormade.com'},
-  {kw:['taylormade','qi35','iron'],p:999,s:'taylormade.com'},
-  {kw:['taylormade','qi max','iron'],p:949,s:'taylormade.com'},
-  {kw:['taylormade','qi','iron'],p:799,s:'golfgalaxy.com'},
-  {kw:['taylormade','stealth','iron'],p:699,s:'golfgalaxy.com'},
-  // TaylorMade Wedge & Putter
-  {kw:['taylormade','milled grind 5','wedge'],p:179,s:'taylormade.com'},
-  {kw:['taylormade','milled grind 4','wedge'],p:159,s:'taylormade.com'},
-  {kw:['taylormade','milled grind hi-toe','wedge'],p:179,s:'taylormade.com'},
-  {kw:['taylormade','spider tour','putter'],p:349,s:'taylormade.com'},
-  {kw:['taylormade','spider gt','putter'],p:249,s:'taylormade.com'},
-  {kw:['taylormade','tp black','putter'],p:199,s:'taylormade.com'},
-  // Callaway Drivers
-  {kw:['callaway','quantum max fast','driver'],p:599,s:'callaway.com'},
-  {kw:['callaway','quantum max','driver'],p:549,s:'callaway.com'},
-  {kw:['callaway','elyte triple diamond','driver'],p:549,s:'callaway.com'},
-  {kw:['callaway','elyte','driver'],p:499,s:'callaway.com'},
-  {kw:['callaway','paradym ai smoke','driver'],p:499,s:'callaway.com'},
-  {kw:['callaway','paradym','driver'],p:449,s:'callaway.com'},
-  {kw:['callaway','rogue st','driver'],p:349,s:'golfgalaxy.com'},
-  // Callaway Irons
-  {kw:['callaway','quantum max','iron'],p:999,s:'callaway.com'},
-  {kw:['callaway','elyte','iron'],p:899,s:'callaway.com'},
-  {kw:['callaway','paradym ai smoke','iron'],p:999,s:'callaway.com'},
-  {kw:['callaway','apex ai300','iron'],p:1299,s:'callaway.com'},
-  {kw:['callaway','apex','iron'],p:1099,s:'callaway.com'},
-  {kw:['callaway','rogue st','iron'],p:749,s:'golfgalaxy.com'},
-  // Callaway Wedge / Odyssey Putter
-  {kw:['callaway','opus','wedge'],p:159,s:'callaway.com'},
-  {kw:['callaway','jaws','wedge'],p:169,s:'callaway.com'},
-  {kw:['odyssey','ai-dual square 2','putter'],p:329,s:'callaway.com'},
-  {kw:['odyssey','ai-dual','putter'],p:299,s:'callaway.com'},
-  {kw:['odyssey','ai-one milled','putter'],p:399,s:'callaway.com'},
-  {kw:['odyssey','ai-one','putter'],p:279,s:'callaway.com'},
-  {kw:['odyssey','dfx','putter'],p:149,s:'callaway.com'},
-  // Ping Drivers
-  {kw:['ping','g440 k','driver'],p:649,s:'ping.com'},
-  {kw:['ping','g440','driver'],p:599,s:'ping.com'},
-  {kw:['ping','g430 max 10k','driver'],p:549,s:'ping.com'},
-  {kw:['ping','g430','driver'],p:499,s:'ping.com'},
-  {kw:['ping','g425','driver'],p:449,s:'golfgalaxy.com'},
-  // Ping Irons
-  {kw:['ping','g440 hl','iron'],p:1299,s:'ping.com'},
-  {kw:['ping','g440','iron'],p:1199,s:'ping.com'},
-  {kw:['ping','i240','iron'],p:1399,s:'ping.com'},
-  {kw:['ping','blueprint','iron'],p:1499,s:'ping.com'},
-  {kw:['ping','i530','iron'],p:1199,s:'ping.com'},
-  {kw:['ping','g730','iron'],p:1099,s:'ping.com'},
-  {kw:['ping','g430','iron'],p:999,s:'ping.com'},
-  {kw:['ping','i230','iron'],p:1199,s:'ping.com'},
-  {kw:['ping','g710','iron'],p:999,s:'golfgalaxy.com'},
-  {kw:['ping','i525','iron'],p:1099,s:'ping.com'},
-  // Ping Wedge / Putter
-  {kw:['ping','s259','wedge'],p:229,s:'ping.com'},
-  {kw:['ping','s159','wedge'],p:219,s:'ping.com'},
-  {kw:['ping','bunkr','wedge'],p:229,s:'ping.com'},
-  {kw:['ping','pld milled anser 30','putter'],p:449,s:'ping.com'},
-  {kw:['ping','pld milled','putter'],p:449,s:'ping.com'},
-  {kw:['ping','scottsdale anser','putter'],p:329,s:'ping.com'},
-  // Titleist Drivers
-  {kw:['titleist','gt2','driver'],p:549,s:'titleist.com'},
-  {kw:['titleist','gt1','driver'],p:549,s:'titleist.com'},
-  {kw:['titleist','gt3','driver'],p:549,s:'titleist.com'},
-  {kw:['titleist','tsr3','driver'],p:499,s:'titleist.com'},
-  {kw:['titleist','tsr2','driver'],p:499,s:'titleist.com'},
-  // Titleist Irons
-  {kw:['titleist','t100'],p:1499,s:'titleist.com'},
-  {kw:['titleist','t150'],p:1399,s:'titleist.com'},
-  {kw:['titleist','t200'],p:1399,s:'titleist.com'},
-  {kw:['titleist','t250'],p:1299,s:'titleist.com'},
-  {kw:['titleist','t350'],p:1199,s:'titleist.com'},
-  // Titleist Wedge / Putter
-  {kw:['titleist','vokey sm11','wedge'],p:199,s:'titleist.com'},
-  {kw:['titleist','vokey sm10','wedge'],p:179,s:'titleist.com'},
-  {kw:['titleist','vokey sm9','wedge'],p:159,s:'titleist.com'},
-  {kw:['titleist','phantom black','putter'],p:499,s:'titleist.com'},
-  {kw:['titleist','studio style','putter'],p:599,s:'titleist.com'},
-  {kw:['titleist','phantom x','putter'],p:399,s:'titleist.com'},
-  // Cobra
-  {kw:['cobra','optm','driver'],p:549,s:'cobragolf.com'},
-  {kw:['cobra','ds-adapt','driver'],p:499,s:'cobragolf.com'},
-  {kw:['cobra','darkspeed','driver'],p:449,s:'cobragolf.com'},
-  {kw:['cobra','aerojet','driver'],p:399,s:'cobragolf.com'},
-  {kw:['cobra','ds-adapt','iron'],p:1099,s:'cobragolf.com'},
-  {kw:['cobra','king tec x','iron'],p:1099,s:'cobragolf.com'},
-  {kw:['cobra','king tec','iron'],p:999,s:'cobragolf.com'},
-  {kw:['cobra','king forged tec','iron'],p:1099,s:'cobragolf.com'},
-  {kw:['cobra','darkspeed','iron'],p:999,s:'cobragolf.com'},
-  {kw:['cobra','snakebite','wedge'],p:129,s:'cobragolf.com'},
-  {kw:['cobra','grandsport','putter'],p:349,s:'cobragolf.com'},
-  // Cleveland
-  {kw:['cleveland','rtz zipcore','wedge'],p:149,s:'clevelandgolf.com'},
-  {kw:['cleveland','rtx 6','wedge'],p:169,s:'clevelandgolf.com'},
-  {kw:['cleveland','cbx 4','wedge'],p:149,s:'clevelandgolf.com'},
-  {kw:['cleveland','smart sole','wedge'],p:119,s:'clevelandgolf.com'},
-  {kw:['cleveland','hb soft milled','putter'],p:149,s:'clevelandgolf.com'},
-  // Mizuno
-  {kw:['mizuno','jpx-925 hot metal','iron'],p:799,s:'mizunogolf.com'},
-  {kw:['mizuno','jpx-925 forged','iron'],p:999,s:'mizunogolf.com'},
-  {kw:['mizuno','mp 243','iron'],p:999,s:'mizunogolf.com'},
-  {kw:['mizuno','pro 243','iron'],p:1099,s:'mizunogolf.com'},
-  {kw:['mizuno','pro 223','iron'],p:1099,s:'mizunogolf.com'},
-  {kw:['mizuno','pro t-1','wedge'],p:149,s:'mizunogolf.com'},
-  {kw:['mizuno','t22','wedge'],p:129,s:'mizunogolf.com'},
-  {kw:['mizuno','m.craft omoi','putter'],p:279,s:'mizunogolf.com'},
-  // Srixon / XXIO
-  {kw:['srixon','zxi5','iron'],p:1099,s:'srixon.com'},
-  {kw:['srixon','zxi4','iron'],p:999,s:'srixon.com'},
-  {kw:['srixon','zx5','iron'],p:899,s:'srixon.com'},
-  {kw:['xxio 14','driver'],p:699,s:'srixon.com'},
-  {kw:['xxio 13','driver'],p:599,s:'srixon.com'},
-  {kw:['xxio prime 13','driver'],p:999,s:'srixon.com'},
-  {kw:['xxio 14','iron'],p:1599,s:'srixon.com'},
-  {kw:['xxio 13','iron'],p:1499,s:'srixon.com'},
-  {kw:['xxio prime 13','iron'],p:1899,s:'srixon.com'},
-  // Honma
-  {kw:['honma','beres 10','5-star'],p:6500,s:'honmagolf.com'},
-  {kw:['honma','beres 10','4-star'],p:3500,s:'honmagolf.com'},
-  {kw:['honma','beres 10','3-star'],p:1500,s:'honmagolf.com'},
-  {kw:['honma','beres 09','5-star'],p:5500,s:'honmagolf.com'},
-  {kw:['honma','beres 09','4-star'],p:3000,s:'honmagolf.com'},
-  {kw:['honma','beres 09','3-star'],p:1200,s:'honmagolf.com'},
-  {kw:['honma','beres 09','2-star'],p:700,s:'honmagolf.com'},
-  {kw:['honma','beres 09 black'],p:650,s:'honmagolf.com'},
-  {kw:['honma','tw767 ls','driver'],p:499,s:'honmagolf.com'},
-  {kw:['honma','tw767','driver'],p:449,s:'honmagolf.com'},
-  {kw:['honma','tw hx','iron'],p:1099,s:'honmagolf.com'},
-  {kw:['honma','tw px','iron'],p:999,s:'honmagolf.com'},
-  {kw:['honma','t//world tour v','iron'],p:999,s:'honmagolf.com'},
-  // Majesty
-  {kw:['majesty','sublime 2023','package'],p:18000,s:'majestygolf.jp'},
-  {kw:['majesty','sublime'],p:3500,s:'majestygolf.jp'},
-  {kw:['majesty','prestigio 14'],p:2500,s:'majestygolf.jp'},
-  {kw:['majesty','prestigio 13'],p:2000,s:'majestygolf.jp'},
-  {kw:['majesty','royale'],p:1200,s:'majestygolf.jp'},
-  // PXG
-  {kw:['pxg','0311','gen 6','driver'],p:449,s:'pxg.com'},
-  {kw:['pxg','0311','driver'],p:399,s:'pxg.com'},
-  {kw:['pxg','0211','driver'],p:299,s:'pxg.com'},
-  {kw:['pxg','0311p','gen 6','iron'],p:1399,s:'pxg.com'},
-  {kw:['pxg','0311xp','gen 6','iron'],p:1199,s:'pxg.com'},
-  {kw:['pxg','0211','iron'],p:699,s:'pxg.com'},
-  {kw:['pxg','sugardaddy','wedge'],p:249,s:'pxg.com'},
-  // Miura
-  {kw:['miura','cb-302','iron'],p:3200,s:'miuragolf.com'},
-  {kw:['miura','tc-202','iron'],p:3000,s:'miuragolf.com'},
-  {kw:['miura','km-700','iron'],p:2800,s:'miuragolf.com'},
-  {kw:['miura','cb-301','iron'],p:2500,s:'miuragolf.com'},
-  {kw:['miura','k-grind','wedge'],p:279,s:'miuragolf.com'},
-  // Yamaha
-  {kw:['yamaha','rmx dd','iron'],p:899,s:'yamahagolf.co.jp'},
-  {kw:['yamaha','inpres drivestar type','iron'],p:1399,s:'yamahagolf.co.jp'},
-  {kw:['yamaha','inpres drivestar','iron'],p:999,s:'yamahagolf.co.jp'},
-  {kw:['yamaha','rmx dd','driver'],p:449,s:'yamahagolf.co.jp'},
-  {kw:['yamaha','inpres drivestar','driver'],p:499,s:'yamahagolf.co.jp'},
-  // Evnroll / Bettinardi
-  {kw:['evnroll','zero z','putter'],p:499,s:'evnroll.com'},
-  {kw:['evnroll','er2','putter'],p:299,s:'evnroll.com'},
-  {kw:['evnroll','er1','putter'],p:299,s:'evnroll.com'},
-  {kw:['bettinardi','dass','putter'],p:1800,s:'bettinardi.com'},
-  {kw:['bettinardi','studio stock','putter'],p:449,s:'bettinardi.com'},
-  // Scotty Cameron
-  {kw:['scotty cameron','studio style','putter'],p:699,s:'titleist.com'},
-  {kw:['scotty cameron','phantom','putter'],p:599,s:'titleist.com'},
-  {kw:['scotty cameron','special select','putter'],p:449,s:'titleist.com'},
-  // LAB Golf
-  {kw:['lab golf','df3','putter'],p:699,s:'labgolf.com'},
-  {kw:['lab golf','link 1','putter'],p:699,s:'labgolf.com'},
-  {kw:['lab golf','oz.1','putter'],p:799,s:'labgolf.com'},
-  // Autoflex
-  {kw:['autoflex','sf505xx'],p:529,s:'autoflex.co.kr'},
-  {kw:['autoflex','sf505x'],p:529,s:'autoflex.co.kr'},
-  {kw:['autoflex','sf505'],p:479,s:'autoflex.co.kr'},
-  // Onoff / Maruman
-  {kw:['onoff','aka tungsten','iron'],p:899,s:'daiwa-seiko.co.jp'},
-  {kw:['onoff','aka','driver'],p:549,s:'daiwa-seiko.co.jp'},
-  {kw:['maruman','sg m230','iron'],p:999,s:'maruman.co.jp'},
-  {kw:['maruman','sg m230','driver'],p:599,s:'maruman.co.jp'},
-];
-
-const EXCHR2 = 16200; // pakai nama berbeda agar tidak bentrok
-const BRAND_TIER = {
-  'honma':[0.70,1.20,'JP premium'],'majesty':[0.65,1.10,'JP ultra premium'],
-  'miura':[0.65,1.10,'JP forged'],'taylormade':[0.80,1.10,'US premium'],
-  'callaway':[0.80,1.10,'US premium'],'ping':[0.80,1.10,'US premium'],
-  'titleist':[0.80,1.10,'US premium'],'cobra':[0.80,1.10,'US premium'],
-  'pxg':[0.75,1.05,'US premium'],'xxio':[0.70,1.05,'JP premium'],
-  'srixon':[0.80,1.10,'US/JP'],'mizuno':[0.80,1.10,'JP standard'],
-  'cleveland':[0.85,1.15,'US standard'],'yamaha':[0.70,1.05,'JP market'],
-  'onoff':[0.70,1.10,'JP market'],'maruman':[0.70,1.10,'JP market'],
-  'odyssey':[0.80,1.15,'US standard'],'evnroll':[0.75,1.10,'US boutique'],
-  'bettinardi':[0.65,1.00,'US boutique'],
-};
-
-function gpLookup(brand, name) {
-  const key = (brand + ' ' + name).toLowerCase();
-  let best = null, bestScore = 0;
-  for (const e of GPDB) {
-    const hits = e.kw.filter(k => key.includes(k)).length;
-    if (!hits) continue;
-    const score = hits / e.kw.length;
-    if (score >= 0.8 && score > bestScore) { bestScore = score; best = e; }
-  }
-  return best;
-}
-
-// ── 2. Handler tombol ─────────────────────────────────────────────
-window.checkGlobalPrice = function(btn) {
-  const td = btn.closest('td');
-  const brand = btn.dataset.b;
-  const name  = btn.dataset.n;
-  const price = parseInt(btn.dataset.p);
-  btn.disabled = true;
-  btn.textContent = '🔍...';
-
-  setTimeout(function() {
-    const m = gpLookup(brand, name);
-    const estCIF = Math.round(price * 0.40 / EXCHR2);
-    if (m) {
-      const ratio = price / (m.p * EXCHR2);
-      const flagBC = Math.round(m.p * 0.22);
-      const minCIF = Math.round(m.p * 0.35);
-      let cls, lbl, ico, bg;
-      if (ratio < 0.45)      { cls='fr-red'; lbl='ANOMALI'; ico='🔴'; bg='rgba(192,57,43,0.12)'; }
-      else if (ratio < 0.72) { cls='fr-yel'; lbl='WASPADA'; ico='🟡'; bg='rgba(230,126,34,0.08)'; }
-      else                   { cls='fr-grn'; lbl='WAJAR';   ico='🟢'; bg='rgba(39,174,96,0.07)'; }
-      td.style.background = bg;
-      td.innerHTML =
-        '<div class="fr-box">' +
-        '<div class="'+cls+'">'+ico+' '+lbl+'</div>' +
-        '<div class="fr-dim">Global ref: <b style="color:rgba(248,244,232,.85)">$'+m.p.toLocaleString()+'</b></div>' +
-        '<div class="fr-dim">IDR/global: <b style="color:rgba(248,244,232,.85)">'+(ratio*100).toFixed(0)+'%</b></div>' +
-        '<div class="fr-dim">Est.CIF: <b>$'+estCIF+'</b> · Flag ≤ <b style="color:#ff8888">$'+flagBC+'</b></div>' +
-        '<div style="font-size:8px;color:rgba(248,244,232,.3)">'+m.s+'</div>' +
-        '</div>';
-    } else {
-      const bk = brand.toLowerCase();
-      const tier = BRAND_TIER[bk];
-      if (tier) {
-        const lo = Math.round(price/(tier[1]*EXCHR2));
-        const hi = Math.round(price/(tier[0]*EXCHR2));
-        td.innerHTML = '<div class="fr-box"><div class="fr-yel">⚠️ ESTIMASI</div>' +
-          '<div class="fr-dim">Est. global: <b style="color:rgba(248,244,232,.85)">$'+lo.toLocaleString()+'–$'+hi.toLocaleString()+'</b></div>' +
-          '<div class="fr-dim">Tier: '+tier[2]+' · Est.CIF: <b>$'+estCIF+'</b></div>' +
-          '<div style="font-size:8px;color:rgba(248,244,232,.3)">verifikasi manual diperlukan</div></div>';
-      } else {
-        td.innerHTML = '<span class="fr-na" style="font-size:9px">Produk niche — cek manual</span>';
-      }
-    }
-  }, 120);
-};
-
-// ── 3. Override render() ─────────────────────────────────────────
-// Tunggu sampai render asli selesai, lalu patch kolom flag
-var _origRender = window.render;
-window.render = function() {
-  _origRender.apply(this, arguments);
-  patchFlagColumn();
-};
-
-function esc(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;');
-}
-
-function patchFlagColumn() {
-  // Update header
-  var ths = document.querySelectorAll('#mainTable thead th');
-  if (ths[6]) {
-    ths[6].style.color = '#5ba8d0';
-    ths[6].style.background = 'rgba(41,84,158,0.12)';
-    ths[6].style.cursor = 'default';
-    ths[6].textContent = '🌐 Analisis Harga Global';
-  }
-  // Fix sort indices on Kategori and Harga headers
-  if (ths[3]) ths[3].onclick = function(){ sortByFixed(4); };
-  if (ths[4]) ths[4].onclick = function(){ sortByFixed(3); };
-
-  // Replace flag cells in each row
-  var rows = document.querySelectorAll('#mainTable tbody tr');
-  rows.forEach(function(row) {
-    var cells = row.querySelectorAll('td');
-    if (cells.length < 7) return;
-    var store = cells[0].textContent.trim();
-    var brand = cells[1].textContent.trim();
-    var name  = cells[2].textContent.trim();
-    var priceText = cells[4].textContent.replace(/[^\d]/g,'');
-    var price = parseInt(priceText) || 0;
-
-    var isPreowned = store.indexOf('Pre-owned') >= 0 ||
-                     store.indexOf('Hobby Golf') >= 0 ||
-                     store.indexOf("Bob's") >= 0;
-
-    var flagTd = cells[6];
-    // Only replace if still showing old flag (has $ sign or red span)
-    if (flagTd.querySelector('button.btn-cek')) return; // already patched
-    if (isPreowned) {
-      flagTd.innerHTML = '<span class="fr-na" style="font-size:9px">N/A · pre-owned/marketplace</span>';
-    } else {
-      flagTd.innerHTML =
-        '<button class="btn-cek" ' +
-        'data-b="' + esc(brand) + '" ' +
-        'data-n="' + esc(name)  + '" ' +
-        'data-p="' + price      + '" ' +
-        'onclick="checkGlobalPrice(this)">🌐 Cek Global</button>';
-    }
-  });
-}
-
-// ── 4. Fix sortBy untuk sort yang benar ──────────────────────────
-function sortByFixed(col) {
-  // Panggil sortBy asli tapi dengan kolom yang sudah benar
-  // data[3]=price, data[4]=category
-  var origSortBy = window._origSortBy || window.sortBy;
-  if (!window._origSortBy) window._origSortBy = window.sortBy;
-  // Override doSort sementara untuk fix mapping
-  window.sortBy(col);
-}
-
-// ── 5. Init ───────────────────────────────────────────────────────
-// Jalankan patch setelah render pertama
-setTimeout(patchFlagColumn, 300);
-
-})(); // end IIFE
-</script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon='{"version":"2024.11.0","token":"7939e04a4baf43c8b86a560f74aac60e","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon='{"version":"2024.11.0","token":"b5821d3a398540abb0df8dad52d3521e","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 </body>
 </html>
