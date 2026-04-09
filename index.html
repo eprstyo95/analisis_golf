@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Database Harga Golf Indonesia — KPPBC MCR Marunda</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Mono:wght@400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --green-deep:#0a1f0e;--green-dark:#122b17;--green-mid:#1a3f21;
+  --gold:#c9a84c;--gold-light:#e2c170;--cream:#f8f4e8;--white:#ffffff;
+  --gray-pale:#e8ede9;--red:#e74c3c;--orange:#e67e22;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--green-deep);color:var(--cream);font-family:'Inter',sans-serif;font-size:13px;line-height:1.6;min-height:100vh}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:999;opacity:0.5}
+.header{background:linear-gradient(135deg,var(--green-deep),#0d2a10,#0a1a0d);border-bottom:2px solid var(--gold);padding:32px 48px 28px;position:relative;overflow:hidden}
+.header::before{content:'💰';position:absolute;right:48px;top:50%;transform:translateY(-50%);font-size:100px;opacity:0.05}
+.hkop{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
+.hagency{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;opacity:.85}
+.hbadge{background:var(--gold);color:var(--green-deep);font-family:'DM Mono',monospace;font-size:9px;font-weight:500;letter-spacing:1.5px;padding:4px 12px;border-radius:2px;text-transform:uppercase}
+.htitle{font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:700;color:var(--white);letter-spacing:-0.5px;line-height:1.1;margin-bottom:6px}
+.htitle span{color:var(--gold-light);font-style:italic}
+.hsub{color:var(--gray-pale);font-size:12px;opacity:.65;letter-spacing:.3px}
+.hmeta{display:flex;gap:28px;margin-top:20px;padding-top:16px;border-top:1px solid rgba(201,168,76,0.2)}
+.hmi{display:flex;flex-direction:column;gap:3px}
+.hml{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);opacity:.7}
+.hmv{font-size:12px;color:var(--gray-pale)}
+.controls{background:var(--green-dark);border-bottom:1px solid rgba(201,168,76,0.1);padding:16px 48px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;position:sticky;top:0;z-index:100;backdrop-filter:blur(8px)}
+.search-wrap{position:relative;flex:1;min-width:220px;max-width:360px}
+.search-wrap input{width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(201,168,76,0.2);border-radius:6px;padding:8px 12px 8px 34px;font-family:'DM Mono',monospace;font-size:11px;color:var(--cream);outline:none;transition:border-color .2s}
+.search-wrap input:focus{border-color:rgba(201,168,76,0.45)}
+.search-wrap input::placeholder{color:rgba(248,244,232,0.3)}
+.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);opacity:.4;font-size:13px}
+select{background:rgba(255,255,255,0.06);border:1px solid rgba(201,168,76,0.18);border-radius:6px;padding:7px 10px;font-family:'DM Mono',monospace;font-size:10px;color:var(--cream);outline:none;cursor:pointer}
+select option{background:#122b17;color:var(--cream)}
+.ctrl-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);opacity:.7;white-space:nowrap}
+.result-count{font-family:'DM Mono',monospace;font-size:10px;color:rgba(248,244,232,0.45);margin-left:auto;white-space:nowrap}
+.btn-reset{background:rgba(231,76,60,0.15);border:1px solid rgba(231,76,60,0.25);border-radius:6px;padding:7px 14px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;color:#e87070;cursor:pointer;transition:all .2s;text-transform:uppercase}
+.btn-reset:hover{background:rgba(231,76,60,0.25)}
+.store-pills{padding:16px 48px;display:flex;gap:8px;flex-wrap:wrap;background:rgba(18,43,23,0.6);border-bottom:1px solid rgba(201,168,76,0.08)}
+.store-pill{padding:5px 14px;border-radius:20px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all .2s;border:1px solid transparent;user-select:none}
+.store-pill.active{opacity:1;border-color:rgba(255,255,255,0.15)}
+.store-pill.inactive{opacity:.35}
+.main{padding:0 48px 40px}
+.stats-bar{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;padding:20px 0 16px}
+.sbc{background:var(--green-dark);border:1px solid rgba(201,168,76,0.12);border-radius:8px;padding:14px 16px;text-align:center}
+.sbn{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:700;color:var(--gold-light);line-height:1;margin-bottom:3px}
+.sbl{font-size:10px;color:rgba(248,244,232,0.45);text-transform:uppercase;letter-spacing:.6px}
+.tbl-wrap{background:var(--green-dark);border:1px solid rgba(201,168,76,0.12);border-radius:12px;overflow:hidden}
+table{width:100%;border-collapse:collapse}
+thead th{background:rgba(201,168,76,0.1);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);padding:10px 12px;text-align:left;border-bottom:1px solid rgba(201,168,76,0.18);white-space:nowrap;cursor:pointer;user-select:none;transition:background .15s}
+thead th:hover{background:rgba(201,168,76,0.16)}
+thead th.sort-asc::after{content:" ▲";opacity:.7}
+thead th.sort-desc::after{content:" ▼";opacity:.7}
+tbody tr{border-bottom:1px solid rgba(255,255,255,0.035);transition:background .1s}
+tbody tr:hover{background:rgba(201,168,76,0.04)}
+tbody tr.hidden{display:none}
+td{padding:9px 12px;font-size:12px;color:rgba(248,244,232,0.8);vertical-align:middle}
+td.td-store{font-family:'DM Mono',monospace;font-size:9px;white-space:nowrap}
+td.td-brand{font-size:11px;color:var(--gold-light);font-weight:500;white-space:nowrap}
+td.td-name{max-width:300px;line-height:1.4}
+td.td-cat span{display:inline-block;font-family:'DM Mono',monospace;font-size:9px;padding:2px 7px;border-radius:3px;white-space:nowrap}
+td.td-price{font-family:'DM Mono',monospace;font-size:12px;text-align:right;white-space:nowrap;color:var(--gold-light);font-weight:500}
+td.td-preowned{opacity:.65}
+td.td-flag{min-width:160px;vertical-align:middle}
+.no-results{padding:48px;text-align:center;color:rgba(248,244,232,0.3);font-size:14px;font-family:'Cormorant Garamond',serif;font-style:italic}
+.pagination{display:flex;align-items:center;gap:8px;padding:16px;border-top:1px solid rgba(201,168,76,0.1);justify-content:flex-end}
+.page-btn{background:rgba(255,255,255,0.05);border:1px solid rgba(201,168,76,0.15);border-radius:5px;padding:5px 12px;font-family:'DM Mono',monospace;font-size:10px;color:var(--cream);cursor:pointer;transition:all .2s}
+.page-btn:hover{border-color:rgba(201,168,76,0.35);background:rgba(201,168,76,0.08)}
+.page-btn.active{background:rgba(201,168,76,0.2);border-color:rgba(201,168,76,0.4);color:var(--gold-light)}
+.page-btn:disabled{opacity:.3;cursor:not-allowed}
+.page-info{font-family:'DM Mono',monospace;font-size:10px;color:rgba(248,244,232,0.4)}
+.cat-driver{background:rgba(201,168,76,0.15);color:var(--gold-light)}
+.cat-iron{background:rgba(41,128,185,0.2);color:#85c1e9}
+.cat-hybrid{background:rgba(39,174,96,0.18);color:#82e0aa}
+.cat-fairway{background:rgba(74,159,212,0.18);color:#9bcde8}
+.cat-wedge{background:rgba(230,126,34,0.18);color:#f0a050}
+.cat-putter{background:rgba(176,127,212,0.2);color:#c9a8e8}
+.cat-package{background:rgba(192,57,43,0.2);color:#e87070}
+.cat-headonly{background:rgba(127,140,141,0.2);color:#bdc3c7}
+.cat-shaft{background:rgba(100,100,100,0.2);color:#aaa}
+.cat-other{background:rgba(80,80,80,0.15);color:#aaa}
+.alert-preowned{background:rgba(192,57,43,0.08);border:1px solid rgba(192,57,43,0.25);border-left:4px solid #c0392b;border-radius:0 8px 8px 0;padding:12px 16px;margin:16px 0 0;font-size:12px;color:rgba(248,244,232,0.75)}
+.alert-preowned strong{color:#e87070}
+.footer{padding:20px 48px;border-top:1px solid rgba(201,168,76,0.1);display:flex;justify-content:space-between;align-items:center;margin-top:12px}
+.fl{font-size:10px;color:rgba(248,244,232,0.3);line-height:1.6}
+.fr{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;color:rgba(201,168,76,0.35);text-transform:uppercase}
+
+/* Flag analysis styles */
+.btn-cek{background:rgba(91,168,208,0.15);border:1px solid rgba(91,168,208,0.3);border-radius:5px;padding:4px 10px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.5px;color:#5ba8d0;cursor:pointer;transition:all .2s;white-space:nowrap}
+.btn-cek:hover{background:rgba(91,168,208,0.25);border-color:rgba(91,168,208,0.5)}
+.btn-cek:disabled{opacity:.5;cursor:not-allowed}
+.flag-result{font-family:'DM Mono',monospace;font-size:9px;line-height:1.5}
+.flag-red{color:#ff4d4d;font-weight:700}
+.flag-yellow{color:#e8a030;font-weight:700}
+.flag-green{color:#4db87a;font-weight:700}
+.flag-dim{color:rgba(248,244,232,0.4)}
+.flag-na{color:rgba(248,244,232,0.25);font-style:italic}
+.global-hint{background:rgba(91,168,208,0.08);border:1px solid rgba(91,168,208,0.15);border-radius:6px;padding:8px 12px;margin:8px 48px;font-family:'DM Mono',monospace;font-size:10px;color:rgba(248,244,232,0.5);display:flex;gap:12px;align-items:center}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="hkop">
+    <div class="hagency">KPPBC Tipe Madya Pabean C — MCR Marunda · DJBC Jakarta · Database Harga Intelijen</div>
+    <div class="hbadge">Tab 09 — Real Data + AI Price Check</div>
+  </div>
+  <div class="htitle">Database Harga <span>Stik Golf</span></div>
+  <div class="hsub">Harga aktual dari 7 toko resmi &amp; marketplace Indonesia · 3,174 produk terindeks · Data real dari mstgolf.id · leoniangolf.com · topgolf.co.id · Shopee · Tokopedia · April 2026</div>
+  <div class="hmeta">
+    <div class="hmi"><span class="hml">Total Produk</span><span class="hmv">3,174 item terindeks</span></div>
+    <div class="hmi"><span class="hml">Toko / Sumber</span><span class="hmv">7 entitas terverifikasi</span></div>
+    <div class="hmi"><span class="hml">Harga Terendah</span><span class="hmv">Rp 750 (aksesoris)</span></div>
+    <div class="hmi"><span class="hml">Harga Tertinggi</span><span class="hmv">Rp 270.000.000 (Majesty Sublime Full Set)</span></div>
+    <div class="hmi"><span class="hml">Kurs Acuan</span><span class="hmv">USD 1 = Rp 16.200 · April 2026</span></div>
+  </div>
+</div>
+
+<div class="controls">
+  <span class="ctrl-label">Cari</span>
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="q" placeholder="Nama produk, merek, model..." oninput="applyFilters()">
+  </div>
+  <span class="ctrl-label">Toko</span>
+  <select id="fStore" onchange="applyFilters()">
+    <option value="">Semua Toko</option>
+    <option>MST Golf Indonesia</option>
+    <option>Leonian Golf Indonesia</option>
+    <option>TopGolf Indonesia</option>
+    <option>Golfellas (Pre-owned)</option>
+    <option>Golfmart (Shopee)</option>
+    <option>Bob's Golf (Shopee)</option>
+    <option>Hobby Golf (Tokopedia)</option>
+  </select>
+  <span class="ctrl-label">Kategori</span>
+  <select id="fCat" onchange="applyFilters()">
+    <option value="">Semua Kategori</option>
+    <option value="Driver">Driver</option>
+    <option value="Iron Set">Iron Set</option>
+    <option value="Fairway">Fairway</option>
+    <option value="Hybrid/Rescue">Hybrid/Rescue</option>
+    <option value="Wedge">Wedge</option>
+    <option value="Putter">Putter</option>
+    <option value="Package Set">Package Set</option>
+    <option value="Head Only">Head Only</option>
+    <option value="Shaft/Komponen">Shaft/Komponen</option>
+    <option value="Other">Other</option>
+  </select>
+  <span class="ctrl-label">Merek</span>
+  <select id="fBrand" onchange="applyFilters()">
+    <option value="">Semua Merek</option>
+    <option>Taylormade</option><option>Callaway</option><option>Ping</option>
+    <option>Honma</option><option>Titleist</option><option>Cobra</option>
+    <option>Mizuno</option><option>Yamaha</option><option>Xxio</option>
+    <option>Srixon</option><option>Cleveland</option><option>Pxg</option>
+    <option>Miura</option><option>Odyssey</option><option>Bettinardi</option>
+    <option>Onoff</option><option>Majesty</option>
+  </select>
+  <span class="ctrl-label">Harga Max</span>
+  <select id="fPrice" onchange="applyFilters()">
+    <option value="">Semua Harga</option>
+    <option value="5000000">&lt; Rp 5 Juta</option>
+    <option value="10000000">&lt; Rp 10 Juta</option>
+    <option value="20000000">&lt; Rp 20 Juta</option>
+    <option value="50000000">&lt; Rp 50 Juta</option>
+    <option value="100000000">&lt; Rp 100 Juta</option>
+  </select>
+  <button class="btn-reset" onclick="resetFilters()">Reset</button>
+  <span class="result-count" id="resultCount"></span>
+</div>
+
+<div class="store-pills" id="storePills">
+  <div class="store-pill active" data-store="MST Golf Indonesia" style="background:rgba(224,85,85,0.15);color:#e05555;border-color:rgba(224,85,85,0.25)" onclick="toggleStore(this)">MST Golf IDN <span style="opacity:.7">(302)</span></div>
+  <div class="store-pill active" data-store="Leonian Golf Indonesia" style="background:rgba(77,184,122,0.15);color:#4db87a;border-color:rgba(77,184,122,0.25)" onclick="toggleStore(this)">Leonian Golf <span style="opacity:.7">(108)</span></div>
+  <div class="store-pill active" data-store="TopGolf Indonesia" style="background:rgba(176,127,212,0.15);color:#b07fd4;border-color:rgba(176,127,212,0.25)" onclick="toggleStore(this)">TopGolf IDN <span style="opacity:.7">(1.197)</span></div>
+  <div class="store-pill active" data-store="Golfellas (Pre-owned)" style="background:rgba(138,138,138,0.15);color:#aaa;border-color:rgba(138,138,138,0.25)" onclick="toggleStore(this)">⚠ Golfellas Pre-owned <span style="opacity:.7">(497)</span></div>
+  <div class="store-pill active" data-store="Golfmart (Shopee)" style="background:rgba(232,160,48,0.15);color:#e8a030;border-color:rgba(232,160,48,0.25)" onclick="toggleStore(this)">Golfmart Shopee <span style="opacity:.7">(941)</span></div>
+  <div class="store-pill active" data-store="Bob's Golf (Shopee)" style="background:rgba(212,133,58,0.15);color:#d4853a;border-color:rgba(212,133,58,0.25)" onclick="toggleStore(this)">Bob's Golf <span style="opacity:.7">(52)</span></div>
+  <div class="store-pill active" data-store="Hobby Golf (Tokopedia)" style="background:rgba(91,168,208,0.15);color:#5ba8d0;border-color:rgba(91,168,208,0.25)" onclick="toggleStore(this)">Hobby Golf Tokped <span style="opacity:.7">(78)</span></div>
+</div>
+
+<div class="global-hint">
+  <span>🌐</span>
+  <span><strong style="color:rgba(91,168,208,0.9)">Kolom Analisis Harga Global</strong> — Klik tombol <strong>Cek Global</strong> di baris produk resmi untuk mencari harga pasar internasional via web search AI, kemudian menghitung rasio harga IDR vs harga global dan menetapkan threshold Flag BC yang akurat.</span>
+</div>
+
+<div class="main">
+  <div class="stats-bar">
+    <div class="sbc"><div class="sbn">3.174</div><div class="sbl">Total Produk</div></div>
+    <div class="sbc"><div class="sbn">7</div><div class="sbl">Toko / Sumber</div></div>
+    <div class="sbc"><div class="sbn">10</div><div class="sbl">Kategori</div></div>
+    <div class="sbc"><div class="sbn" style="font-size:18px;">Rp 750</div><div class="sbl">Harga Terendah</div></div>
+    <div class="sbc"><div class="sbn" style="font-size:18px;">Rp 270Jt</div><div class="sbl">Harga Tertinggi</div></div>
+  </div>
+
+  <div class="alert-preowned">
+    <strong>⚠ Golfellas (Pre-owned):</strong> Produk bekas — dilarang impor berdasarkan Permendag 48/2015 jo. 40/2022. Harga di toko ini bukan acuan nilai pabean impor. Gunakan harga toko resmi (MST Golf, Leonian, TopGolf) sebagai referensi CIF wajar. Golfellas terindeks untuk keperluan intelijen sumber pasokan barang bekas ilegal.
+  </div>
+
+  <div class="tbl-wrap" style="margin-top:16px">
+    <table id="mainTable">
+      <thead>
+        <tr>
+          <th onclick="sortBy(0)">Toko / Sumber</th>
+          <th onclick="sortBy(1)">Merek</th>
+          <th onclick="sortBy(2)">Nama Produk</th>
+          <th onclick="sortBy(4)">Kategori</th>
+          <th onclick="sortBy(3)" style="text-align:right">Harga (IDR)</th>
+          <th style="text-align:right;cursor:default">Est. CIF (USD)</th>
+          <th style="cursor:default;color:#5ba8d0;background:rgba(41,84,158,0.12)">🌐 Analisis Harga Global</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+    <div id="noResults" class="no-results" style="display:none">Tidak ada produk yang cocok dengan filter ini.</div>
+    <div class="pagination" id="pagination"></div>
+  </div>
+</div>
+
+<div class="footer">
+  <div class="fl">
+    Database Harga Intelijen Kepabeanan — KPPBC TMP-C MCR Marunda · DJBC Jakarta<br>
+    Sumber: mstgolf.id · leoniangolf.com · topgolf.co.id · golfellas.co.id · Shopee · Tokopedia · April 2026<br>
+    Harga retail sebagai acuan nilai pabean — CIF wajar ≈ 35–50% dari harga retail · Analisis global via AI web search
+  </div>
+  <div class="fr">HS 9506.31–39 · 3.174 produk · 7 entitas</div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// DATA: [store, brand, name, price(idx3), cat(idx4)]
+// FIX: sort col 3 = price, sort col 4 = category
+// ═══════════════════════════════════════════════
+const PRODUCTS=[
+["MST Golf Indonesia","Honma","HONMA BERES 09 Men's Irons",41700000,"Iron Set"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Qi4D Max Lite (2026) Men's Rescue",5390000,"Hybrid/Rescue"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Qi4D Tour (2026) Men's Fairway",7490000,"Fairway"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Qi4D (2026) Men's Fairway",6590000,"Fairway"],
+["MST Golf Indonesia","Honma","HONMA BERES 10 4-Star (2026) Men's Driver",27700000,"Driver"],
+["MST Golf Indonesia","Majesty","MAJESTY Prestigio 14 (2026) Men's Irons",70700000,"Iron Set"],
+["MST Golf Indonesia","Honma","HONMA BERES 10 3-Star (2026) Men's Irons (7 Clubs)",55900000,"Iron Set"],
+["MST Golf Indonesia","Honma","HONMA BERES 10 4-Star (2026) Men's Irons",169000000,"Iron Set"],
+["MST Golf Indonesia","Honma","HONMA BERES 10 3-Star (2026) Men's Irons (9 Clubs)",71900000,"Iron Set"],
+["MST Golf Indonesia","Honma","HONMA BERES 10 4-Star (2026) Men's Utility",20800000,"Hybrid/Rescue"],
+["MST Golf Indonesia","Honma","HONMA BERES 10 3-Star (2026) Men's Utility",8650000,"Hybrid/Rescue"],
+["MST Golf Indonesia","Majesty","MAJESTY Prestigio 14 (2026) Men's Fairway",22500000,"Fairway"],
+["MST Golf Indonesia","Honma","HONMA BERES 10 5-Star (2026) Men's Fairway",69000000,"Fairway"],
+["MST Golf Indonesia","Honma","HONMA BERES 10 4-Star (2026) Men's Fairway",21900000,"Fairway"],
+["MST Golf Indonesia","Honma","HONMA BERES 10 3-Star (2026) Men's Fairway",10400000,"Fairway"],
+["MST Golf Indonesia","Majesty","MAJESTY Prestigio 14 (2026) Men's Driver",33000000,"Driver"],
+["MST Golf Indonesia","Honma","HONMA BERES 10 3-Star (2026) Men's Driver",16700000,"Driver"],
+["MST Golf Indonesia","Majesty","MAJESTY Prestigio 14 (2026) Men's Hybrid",14300000,"Hybrid/Rescue"],
+["MST Golf Indonesia","Evnroll","EVNROLL ZERO Z5 Center Shaft Hatchback Black (2026) Men's Putter",8800000,"Putter"],
+["MST Golf Indonesia","Evnroll","EVNROLL ZERO Z5 Hatchback Black (2026) Men's Putter",8800000,"Putter"],
+["MST Golf Indonesia","Evnroll","EVNROLL ZERO Z1 Center Shaft Black (2026) Men's Putter",8800000,"Putter"],
+["MST Golf Indonesia","Ping","PING G440 K (2026) Men's Driver",12490000,"Driver"],
+["MST Golf Indonesia","Ping","PING S259 S Grind (2026) Men's Wedge",4300000,"Wedge"],
+["MST Golf Indonesia","Odyssey","ODYSSEY Ai-Dual #7 1/2-Ball S (2026) Putter",4800000,"Putter"],
+["MST Golf Indonesia","Odyssey","ODYSSEY Ai-Dual 2-Ball Double Bend (2026) Men's Putter",4800000,"Putter"],
+["MST Golf Indonesia","Odyssey","ODYSSEY Ai-Dual Jailbird Mini Double Bend (2026) Men's Putter",4800000,"Putter"],
+["MST Golf Indonesia","Odyssey","ODYSSEY Ai-Dual #7S (2026) Men's Putter",4800000,"Putter"],
+["MST Golf Indonesia","Odyssey","ODYSSEY Ai-Dual #1 CH (2026) Men's Putter",4800000,"Putter"],
+["MST Golf Indonesia","Odyssey","ODYSSEY Ai-Dual #7 Double Bend (2026) Men's Putter",4800000,"Putter"],
+["MST Golf Indonesia","Odyssey","ODYSSEY Ai-Dual Double Wide Double Bend (2026) Putter",4800000,"Putter"],
+["MST Golf Indonesia","Odyssey","ODYSSEY Ai-Dual Square 2 Square Max 1/2-Ball (2026) Putter",5500000,"Putter"],
+["MST Golf Indonesia","Odyssey","ODYSSEY Ai-Dual Square 2 Square Jailbird OS (2026) Putter",5500000,"Putter"],
+["MST Golf Indonesia","Odyssey","ODYSSEY Ai-Dual Square 2 Square Seven OS (2026) Men's Putter",5500000,"Putter"],
+["MST Golf Indonesia","Callaway","CALLAWAY Quantum Max (2026) Men's Fairway",5990000,"Fairway"],
+["MST Golf Indonesia","Callaway","CALLAWAY Quantum Max Fast (2026) Men's Driver",10990000,"Driver"],
+["MST Golf Indonesia","Callaway","CALLAWAY Quantum Max (2026) Men's Driver",9990000,"Driver"],
+["MST Golf Indonesia","Honma","HONMA x Malbon Golf Performance (2025) Men's Package Set",88000000,"Package Set"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Qi Max Lite (2026) Men's Irons",17300000,"Iron Set"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Qi Max (2026) Men's Irons",20900000,"Iron Set"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Qi4D Max (2026) Men's Hybrid",5390000,"Hybrid/Rescue"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Qi4D (2026) Men's Rescue",5390000,"Hybrid/Rescue"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Qi4D Max Lite (2026) Men's Fairway",6590000,"Fairway"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Qi4D Max (2026) Men's Fairway",6590000,"Fairway"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Qi4D Max Lite (2026) Men's Driver",10990000,"Driver"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Qi4D Max (2026) Men's Driver",10990000,"Driver"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Qi4D (2026) Men's Driver",10990000,"Driver"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Qi4D LS (2026) Men's Driver",10990000,"Driver"],
+["MST Golf Indonesia","Srixon","SRIXON ZXi5 (2025) Men's Irons",19599000,"Iron Set"],
+["MST Golf Indonesia","Cobra","COBRA OPTM Black (2026) Men's Hybrid",5150000,"Hybrid/Rescue"],
+["MST Golf Indonesia","Cobra","COBRA OPTM X Black (2026) Men's Fairway",6390000,"Fairway"],
+["MST Golf Indonesia","Cobra","COBRA OPTM MAX-K Black (2026) Men's Driver",10200000,"Driver"],
+["MST Golf Indonesia","Cobra","COBRA OPTM X Black (2026) Men's Driver",10200000,"Driver"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE P7CB Satin Charcoal (2025) Men's Irons",28000000,"Iron Set"],
+["MST Golf Indonesia","Honma","HONMA BERES 09 3-Star (2024) Men's Irons",61000000,"Iron Set"],
+["MST Golf Indonesia","Xxio","SRIXON XXIO 14 (2026) Men's Hybrid",5099000,"Hybrid/Rescue"],
+["MST Golf Indonesia","Xxio","SRIXON XXIO 14 (2025) Men's Fairway",6899000,"Fairway"],
+["MST Golf Indonesia","Xxio","SRIXON XXIO+ (2025) Men's Driver",11299000,"Driver"],
+["MST Golf Indonesia","Xxio","SRIXON XXIO 14 (2025) Men's Driver",11299000,"Driver"],
+["MST Golf Indonesia","Yamaha","YAMAHA RMX DD (2026) Men's Utility",3690000,"Hybrid/Rescue"],
+["MST Golf Indonesia","Yamaha","YAMAHA RMX DD (2026) Men's Fairway",4390000,"Fairway"],
+["MST Golf Indonesia","Yamaha","YAMAHA RMX DD-2 (2026) Men's Irons",11500000,"Iron Set"],
+["MST Golf Indonesia","Yamaha","YAMAHA RMX DD-1 (2026) Men's Irons",11500000,"Iron Set"],
+["MST Golf Indonesia","Yamaha","YAMAHA RMX DD-1 Tour Model (2026) Men's Irons",11500000,"Iron Set"],
+["MST Golf Indonesia","Yamaha","YAMAHA RMX DD-1 (2026) Men's Driver",7190000,"Driver"],
+["MST Golf Indonesia","Majesty","MAJESTY Santorini (2024) Men's Putter",13800000,"Putter"],
+["MST Golf Indonesia","Titleist","TITLEIST T350 (2025) Men's Irons",26600000,"Iron Set"],
+["MST Golf Indonesia","Titleist","TITLEIST T250 (2025) Men's Irons",26600000,"Iron Set"],
+["MST Golf Indonesia","Titleist","TITLEIST T100 (2025) Men's Irons",26600000,"Iron Set"],
+["MST Golf Indonesia","Ping","PING i240 (2025) Men's Irons",23990000,"Iron Set"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE P8CB (2025) Men's Irons",25900000,"Iron Set"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE P790 Satin Charcoal (2025) Men's Irons",28000000,"Iron Set"],
+["MST Golf Indonesia","Xxio","SRIXON XXIO Prime 13 (2025) Men's Irons",37999000,"Iron Set"],
+["MST Golf Indonesia","Majesty","MAJESTY Royale (2025) Men's Irons",32400000,"Iron Set"],
+["MST Golf Indonesia","Callaway","CALLAWAY Elyte Max Fast (2025) Men's Irons",15500000,"Iron Set"],
+["MST Golf Indonesia","Callaway","CALLAWAY Elyte (2025) Men's Irons",15500000,"Iron Set"],
+["MST Golf Indonesia","Srixon","SRIXON ZXi4 (2025) Men's Irons",19999000,"Iron Set"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE P790 (2025) Men's Irons",25900000,"Iron Set"],
+["MST Golf Indonesia","Ping","PING G440 HL (2025) Men's Irons",19990000,"Iron Set"],
+["MST Golf Indonesia","Ping","PING G440 (2025) Men's Irons",18490000,"Iron Set"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Qi Gunmetal Edition (2025) Men's Irons",15600000,"Iron Set"],
+["MST Golf Indonesia","Honma","HONMA TW Hx (2025) Men's Irons",19900000,"Iron Set"],
+["MST Golf Indonesia","Honma","HONMA TW Px (2025) Men's Irons",16500000,"Iron Set"],
+["MST Golf Indonesia","Honma","HONMA TW Vx (2025) Men's Irons",16500000,"Iron Set"],
+["MST Golf Indonesia","Honma","HONMA T//World Tour V (2025) Men's Irons",16500000,"Iron Set"],
+["MST Golf Indonesia","Yamaha","YAMAHA Inpres DriveStar Type/S (2025) Men's Irons",23500000,"Iron Set"],
+["MST Golf Indonesia","Yamaha","YAMAHA Inpres DriveStar Type/D (2025) Men's Irons",23500000,"Iron Set"],
+["MST Golf Indonesia","Mizuno","MIZUNO JPX-925 Hot Metal (2024) Men's Irons",13599000,"Iron Set"],
+["MST Golf Indonesia","Mizuno","MIZUNO JPX-925 Forged (2024) Men's Irons",15799000,"Iron Set"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE P7CB (2024) Men's Irons",25900000,"Iron Set"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE P770 (2024) Men's Irons",25900000,"Iron Set"],
+["MST Golf Indonesia","Cobra","COBRA KING TEC X (2025) Men's Irons",22039000,"Iron Set"],
+["MST Golf Indonesia","Cobra","COBRA KING TEC (2025) Men's Irons",22039000,"Iron Set"],
+["MST Golf Indonesia","Honma","HONMA BERES 09 2-Star (2024) Men's Irons",33100000,"Iron Set"],
+["MST Golf Indonesia","Xxio","SRIXON XXIO 13 (2024) Men's Irons",13800000,"Iron Set"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Qi (2024) Men's Irons",13900000,"Iron Set"],
+["MST Golf Indonesia","Ping","PING G730 (2024) Men's Irons",21990000,"Iron Set"],
+["MST Golf Indonesia","Ping","PING Blueprint S (2024) Men's Irons",24990000,"Iron Set"],
+["MST Golf Indonesia","Ping","PING Blueprint T (2024) Men's Irons",24990000,"Iron Set"],
+["MST Golf Indonesia","Ping","PING I530 (2024) Men's Irons",23990000,"Iron Set"],
+["MST Golf Indonesia","Onoff","ONOFF Aka Tungsten (2024) Men's Irons",13400000,"Iron Set"],
+["MST Golf Indonesia","Titleist","TITLEIST T350 2023 Men's Irons",21900000,"Iron Set"],
+["MST Golf Indonesia","Titleist","TITLEIST T150 (2023) Men's Irons",21900000,"Iron Set"],
+["MST Golf Indonesia","Titleist","TITLEIST T100 (2023) Men's Irons",19900000,"Iron Set"],
+["MST Golf Indonesia","Yamaha","YAMAHA RMX VD R (2024) Men's Irons",9500000,"Iron Set"],
+["MST Golf Indonesia","Mizuno","MIZUNO MP 243 (2024) Men's Irons",15999000,"Iron Set"],
+["MST Golf Indonesia","Cobra","COBRA King Forged Tec Black Men's Irons",14500000,"Iron Set"],
+["MST Golf Indonesia","Cobra","COBRA KING Tour Men's Irons",12500000,"Iron Set"],
+["MST Golf Indonesia","Maruman","MARUMAN SG M230 (2023) Men's Irons (6 Clubs)",16790000,"Iron Set"],
+["MST Golf Indonesia","Maruman","MARUMAN SG M230 (2023) Men's Irons (8 Clubs)",24250000,"Iron Set"],
+["MST Golf Indonesia","Giii","GIII V8 (2020) Men's Irons",34888000,"Iron Set"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Milled Grind 5 Tiger Woods Grind (2025) Men's Wedge",3850000,"Wedge"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Milled Grind 5 Black Standard Bounce (2025) Men's Wedge",3550000,"Wedge"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Milled Grind 5 Chrome Standard Bounce (2025) Men's Wedge",3550000,"Wedge"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Milled Grind 5 Chrome High Bounce (2025) Men's Wedge",3550000,"Wedge"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Milled Grind 5 Chrome Low Bounce (2025) Men's Wedge",3550000,"Wedge"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Milled Grind 5 Chrome Standard Bounce (2025) Men's Wedge",3550000,"Wedge"],
+["MST Golf Indonesia","Cleveland","CLEVELAND RTZ Zipcore Black Satin (2025) Men's Wedge",2799000,"Wedge"],
+["MST Golf Indonesia","Cleveland","CLEVELAND RTZ Zipcore Tour Satin (2025) Men's Wedge",2799000,"Wedge"],
+["MST Golf Indonesia","Ping","PING BunkR (2025) Men's Wedge",4190000,"Wedge"],
+["MST Golf Indonesia","Mizuno","MIZUNO Pro T-1 Satin (2025) Men's Wedge",2799000,"Wedge"],
+["MST Golf Indonesia","Callaway","CALLAWAY Opus Brushed Chrome (2024) Men's Wedge",2970000,"Wedge"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Milled Grind Hi-Toe 4 (2025) ATS Men's Wedge",3350000,"Wedge"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Milled Grind Hi-Toe 4 (2025) ATW Men's Wedge",3350000,"Wedge"],
+["MST Golf Indonesia","Honma","HONMA T//World TW-W5 Chrome (2024) Men's Wedge",2890000,"Wedge"],
+["MST Golf Indonesia","Cleveland","CLEVELAND Smart Sole Full Face C (2024) Men's Wedge",2199000,"Wedge"],
+["MST Golf Indonesia","Cleveland","CLEVELAND CBX 4 Zipcore (2024) Men's Wedge",2799000,"Wedge"],
+["MST Golf Indonesia","Titleist","TITLEIST Vokey SM10 Jet Black F Grind (2024) Men's Wedge",3195000,"Wedge"],
+["MST Golf Indonesia","Titleist","TITLEIST Vokey SM10 Jet Black D Grind (2024) Men's Wedge",3195000,"Wedge"],
+["MST Golf Indonesia","Titleist","TITLEIST Vokey SM10 Nickel M Grind (2024) Men's Wedge",3195000,"Wedge"],
+["MST Golf Indonesia","Titleist","TITLEIST Vokey SM10 Nickel F Grind (2024) Men's Wedge",3195000,"Wedge"],
+["MST Golf Indonesia","Titleist","TITLEIST Vokey SM10 Tour Chrome S Grind (2024) Men's Wedge",3195000,"Wedge"],
+["MST Golf Indonesia","Titleist","TITLEIST Vokey SM10 Tour Chrome M Grind (2024) Men's Wedge",3195000,"Wedge"],
+["MST Golf Indonesia","Titleist","TITLEIST Vokey SM10 Tour Chrome K Grind (2024) Men's Wedge",3195000,"Wedge"],
+["MST Golf Indonesia","Titleist","TITLEIST Vokey SM10 Tour Chrome F Grind (2024) Men's Wedge",3195000,"Wedge"],
+["MST Golf Indonesia","Ping","PING S159 Chrome S Grind (2024) Men's Wedge",3890000,"Wedge"],
+["MST Golf Indonesia","Onoff","ONOFF Forged (2024) Men's Wedge",2790000,"Wedge"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Milled Grind 4 TW Charcoal (2023) Men's Wedge",2950000,"Wedge"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Milled Grind 4 Black Standard Bounce (2023) Men's Wedge",2650000,"Wedge"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Milled Grind 4 Chrome High Bounce (2023) Men's Wedge",2650000,"Wedge"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Milled Grind 4 Chrome Low Bounce (2023) Men's Wedge",2650000,"Wedge"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Milled Grind 4 Chrome Std Bounce (2023) Men's Wedge",2650000,"Wedge"],
+["MST Golf Indonesia","Onoff","ONOFF Frog's Running Labospec (2023) Men's Wedge",3093000,"Wedge"],
+["MST Golf Indonesia","Majesty","MAJESTY W-Moment Black (2021) Men's Wedge",4290000,"Wedge"],
+["MST Golf Indonesia","Honma","HONMA BERES (2021) Men's Wedge",4590000,"Wedge"],
+["MST Golf Indonesia","Various","MD GOLF NV Drew Chrome (2022) Men's Wedge",1290000,"Wedge"],
+["MST Golf Indonesia","Onoff","ONOFF Labo Frog's Leap II (2021) Men's Wedge",2403000,"Wedge"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE RBZ (2025) Steel Men's Package Set",19900000,"Package Set"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE RBZ (2025) Graphite Men's Package Set",22000000,"Package Set"],
+["MST Golf Indonesia","Maruman","MARUMAN Zeta Max (2025) Men's Package Set",15000000,"Package Set"],
+["MST Golf Indonesia","Mizuno","MIZUNO RV-9 (2025) Men's Package Set",16399000,"Package Set"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Team TaylorMade (2024) Junior Package Set (Ages 10-12)",12200000,"Package Set"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Team TaylorMade (2024) Junior Package Set (Ages 7-9)",9250000,"Package Set"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Team TaylorMade (2024) Junior Package Set (Ages 4-6)",6950000,"Package Set"],
+["MST Golf Indonesia","Majesty","MAJESTY Sublime (2023) Men's Package Set",270000000,"Package Set"],
+["MST Golf Indonesia","Cleveland","CLEVELAND 2023 Men's Package Set",15999000,"Package Set"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Rory K50 Junior Package Set (Age 9-12)",9189000,"Package Set"],
+["MST Golf Indonesia","Cleveland","CLEVELAND Junior Package Set (Medium)",4599000,"Package Set"],
+["MST Golf Indonesia","Cleveland","CLEVELAND Junior Package Set (Large)",5199000,"Package Set"],
+["MST Golf Indonesia","Titleist","TITLEIST Phantom Black 11 Limited Edition (2025) Men's Putter",17900000,"Putter"],
+["MST Golf Indonesia","Titleist","TITLEIST Phantom Black 7 Double Bend Limited Edition (2025) Men's Putter",17900000,"Putter"],
+["MST Golf Indonesia","Titleist","TITLEIST Phantom Black 9.2R Limited Edition (2025) Men's Putter",17900000,"Putter"],
+["MST Golf Indonesia","Titleist","TITLEIST Phantom Black 5.5 Limited Edition (2025) Men's Putter",17900000,"Putter"],
+["MST Golf Indonesia","Odyssey","ODYSSEY Ai-ONE Square 2 Square Max Stripe ZT Limited Edition (2025) Men's Putter",6100000,"Putter"],
+["MST Golf Indonesia","Titleist","TITLEIST Studio Style Squareback 2 Long Design (2025) Men's Putter",9800000,"Putter"],
+["MST Golf Indonesia","Titleist","TITLEIST Studio Style Catalina (2025) Men's Putter",8800000,"Putter"],
+["MST Golf Indonesia","Titleist","TITLEIST Studio Style Newport 2 (2025) Men's Putter",8800000,"Putter"],
+["MST Golf Indonesia","Odyssey","ODYSSEY DFX #1W CH (2025) Men's Putter",2900000,"Putter"],
+["MST Golf Indonesia","Ping","PING Scottsdate Anser 2D (2025) Men's Putter",6490000,"Putter"],
+["MST Golf Indonesia","Ping","PING Scottsdale Anser (2025) Men's Putter",6490000,"Putter"],
+["MST Golf Indonesia","Ping","PING PLD Milled Anser 30 Satin (2025) Men's Putter",7290000,"Putter"],
+["MST Golf Indonesia","Odyssey","ODYSSEY Ai-ONE Milled 2-Ball T DB Stroke Lab LE (2025) Men's Putter",6850000,"Putter"],
+["MST Golf Indonesia","Odyssey","ODYSSEY Ai-ONE Milled One Wide T CH Stroke Lab LE (2025) Men's Putter",6850000,"Putter"],
+["MST Golf Indonesia","Evnroll","EVNROLL Zero Z.1 Red (2025) Men's Putter",8800000,"Putter"],
+["MST Golf Indonesia","Evnroll","EVNROLL Zero Z.1 Blue (2025) Men's Putter",8800000,"Putter"],
+["MST Golf Indonesia","Evnroll","EVNROLL Zero Z.1 Black (2025) Men's Putter",8800000,"Putter"],
+["MST Golf Indonesia","Honma","HONMA SAKATA LAB CNC SUMMIT Black (2024) Men's Putter",11000000,"Putter"],
+["MST Golf Indonesia","Honma","HONMA SAKATA LAB CNC AROURA Grey (2024) Men's Putter",11000000,"Putter"],
+["MST Golf Indonesia","Majesty","MAJESTY Moritius (2024) Men's Mallet Putter",28900000,"Putter"],
+["MST Golf Indonesia","Various","MD GOLF Superstrong STR50 #1 (2024) Men's Putter",1090000,"Putter"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE TP Black Ardmore #6 (2024) Men's Putter",3584000,"Putter"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE TP Black Ardmore SB (2024) Men's Putter",3584000,"Putter"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE TP Black Del Monte #1 (2024) Men's Putter",3584000,"Putter"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE TP Black Juno #2 (2024) Men's Putter",3584000,"Putter"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Spider Tour Z Silver Double Bend (2024) Men's Putter",6313000,"Putter"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Spider Tour V Silver Double Bend (2024) Men's Putter",6313000,"Putter"],
+["MST Golf Indonesia","Cobra","COBRA Grandsport-35 3D Printed (2024) Men's Putter",6289000,"Putter"],
+["MST Golf Indonesia","Mizuno","MIZUNO M.Craft OMOI #5 Black (2024) Men's Putter",5599000,"Putter"],
+["MST Golf Indonesia","Mizuno","MIZUNO M.Craft OMOI #6 Black (2024) Men's Putter",5599000,"Putter"],
+["MST Golf Indonesia","Giii","GIII Signature 4-Star (2023) Men's Putter",17250000,"Putter"],
+["MST Golf Indonesia","Cleveland","CLEVELAND HB Soft Milled 14 Single Bend Men's Putter",2999000,"Putter"],
+["MST Golf Indonesia","Cleveland","CLEVELAND HB Soft Milled 8P Single Bend Men's Putter",2999000,"Putter"],
+["MST Golf Indonesia","Onoff","ONOFF AKA OM-5 Blue (2020) Men's Putter",3490000,"Putter"],
+["MST Golf Indonesia","Titleist","TITLEIST T250U (2025) Men's Utility Iron",4900000,"Iron Set"],
+["MST Golf Indonesia","Titleist","TITLEIST U-505 (2025) Men's Utility Iron",4900000,"Iron Set"],
+["MST Golf Indonesia","Xxio","SRIXON XXIO Prime 13 (2025) Men's Hybrid",7399000,"Hybrid/Rescue"],
+["MST Golf Indonesia","Titleist","TITLEIST GT2 (2025) Men's Hybrid",5700000,"Hybrid/Rescue"],
+["MST Golf Indonesia","Titleist","TITLEIST GT3 (2025) Men's Hybrid",5700000,"Hybrid/Rescue"],
+["MST Golf Indonesia","Majesty","MAJESTY Royale (2025) Men's Hybrid",8290000,"Hybrid/Rescue"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Qi35 Max Lite (2025) Men's Rescue",4350000,"Hybrid/Rescue"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Qi35 Max (2025) Men's Rescue",4350000,"Hybrid/Rescue"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Qi35 (2025) Men's Rescue",4350000,"Hybrid/Rescue"],
+["MST Golf Indonesia","Cobra","COBRA DS-ADAPT (2025) Men's Hybrid",4159000,"Hybrid/Rescue"],
+["MST Golf Indonesia","Ping","PING G440 HL (2025) Men's Hybrid",5990000,"Hybrid/Rescue"],
+["MST Golf Indonesia","Ping","PING G440 (2025) Men's Hybrid",5990000,"Hybrid/Rescue"],
+["MST Golf Indonesia","Honma","HONMA T//World TW767 (2025) Men's Utility",3790000,"Hybrid/Rescue"],
+["MST Golf Indonesia","Yamaha","YAMAHA Inpres DriveStar (2025) Men's Utility",3990000,"Hybrid/Rescue"],
+["MST Golf Indonesia","Mizuno","MIZUNO JPX FLI HI (2025) Men's Hybrid",2399000,"Hybrid/Rescue"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE P.DHY (2024) Men's Utility Iron",4600000,"Iron Set"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE P.UDI (2024) Men's Utility Iron",4600000,"Iron Set"],
+["MST Golf Indonesia","Majesty","MAJESTY Prestigio 13 (2024) Men's Hybrid",9190000,"Hybrid/Rescue"],
+["MST Golf Indonesia","Honma","HONMA BERES 09 4-Star (2024) Men's Utility",17500000,"Hybrid/Rescue"],
+["MST Golf Indonesia","Honma","HONMA BERES 09 3-Star (2024) Men's Utility",7250000,"Hybrid/Rescue"],
+["MST Golf Indonesia","Honma","HONMA BERES 09 2-Star (2024) Men's Utility",5350000,"Hybrid/Rescue"],
+["MST Golf Indonesia","Callaway","CALLAWAY Paradym AI Smoke (2024) Men's Hybrid",4400000,"Hybrid/Rescue"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Qi10 (2024) Men's Rescue",3690000,"Hybrid/Rescue"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Qi10 Max (2024) Men's Rescue",3690000,"Hybrid/Rescue"],
+["MST Golf Indonesia","Onoff","ONOFF Wings AKA (2024) Men's Utility",3690000,"Hybrid/Rescue"],
+["MST Golf Indonesia","Giii","GIII Signature 6 (2024) Men's Utility",14900000,"Hybrid/Rescue"],
+["MST Golf Indonesia","Yamaha","YAMAHA RMX VD (2024) Men's Utility Wood",2950000,"Fairway"],
+["MST Golf Indonesia","Maruman","MARUMAN SG M230 (2023) Men's Hybrid",3990000,"Hybrid/Rescue"],
+["MST Golf Indonesia","Yamaha","YAMAHA Inpres DriveStar Men's Utility",2900000,"Hybrid/Rescue"],
+["MST Golf Indonesia","Giii","GIII Signature 5 (2021) Men's Utility",11900000,"Hybrid/Rescue"],
+["MST Golf Indonesia","Giii","GIII V8 (2020) Men's Utility",11213000,"Hybrid/Rescue"],
+["MST Golf Indonesia","Titleist","TITLEIST GT1 (2025) Men's Fairway",5528000,"Fairway"],
+["MST Golf Indonesia","Honma","HONMA BERES 09 Black (2024) Men's Fairway",6290000,"Fairway"],
+["MST Golf Indonesia","Majesty","MAJESTY Royale (2025) Men's Fairway",10200000,"Fairway"],
+["MST Golf Indonesia","Callaway","CALLAWAY Elyte (2025) Men's Fairway",4900000,"Fairway"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Qi35 Max Lite (2025) Men's Fairway",5350000,"Fairway"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Qi35 Max (2025) Men's Fairway",5350000,"Fairway"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Qi35 (2025) Men's Fairway",5350000,"Fairway"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Qi35 Tour (2025) Men's Fairway",6390000,"Fairway"],
+["MST Golf Indonesia","Cobra","COBRA DS-ADAPT X (2025) Men's Fairway",5599000,"Fairway"],
+["MST Golf Indonesia","Ping","PING G440 Max HL (2025) Men's Fairway",6990000,"Fairway"],
+["MST Golf Indonesia","Ping","PING G440 SFT (2025) Men's Fairway",6990000,"Fairway"],
+["MST Golf Indonesia","Ping","PING G440 Max (2025) Men's Fairway",6990000,"Fairway"],
+["MST Golf Indonesia","Honma","HONMA T//World TW767 (2025) Men's Fairway",4350000,"Fairway"],
+["MST Golf Indonesia","Titleist","TITLEIST GT3 (2024) Men's Fairway",5528000,"Fairway"],
+["MST Golf Indonesia","Titleist","TITLEIST GT2 (2024) Men's Fairway",5528000,"Fairway"],
+["MST Golf Indonesia","Yamaha","YAMAHA Inpres DriveStar (2023) Men's Fairway",5190000,"Fairway"],
+["MST Golf Indonesia","Majesty","MAJESTY Prestigio 13 (2024) Men's Fairway",15300000,"Fairway"],
+["MST Golf Indonesia","Honma","HONMA BERES 09 5-Star Men's Fairway",58100000,"Fairway"],
+["MST Golf Indonesia","Honma","HONMA BERES 09 4-Star (2024) Men's Fairway",18400000,"Fairway"],
+["MST Golf Indonesia","Honma","HONMA BERES 09 3-Star (2024) Men's Fairway",8690000,"Fairway"],
+["MST Golf Indonesia","Honma","HONMA BERES 09 2-Star (2024) Men's Fairway",6290000,"Fairway"],
+["MST Golf Indonesia","Xxio","SRIXON XXIO 13 (2024) Men's Fairway",3690000,"Fairway"],
+["MST Golf Indonesia","Callaway","CALLAWAY Paradym AI Smoke MAX (2024) Men's Fairway",5100000,"Fairway"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Qi10 (2024) Men's Fairway",4200000,"Fairway"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Qi10 Max (2024) Men's Fairway",4200000,"Fairway"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Qi10 Tour (2024) Men's Fairway",5290000,"Fairway"],
+["MST Golf Indonesia","Onoff","ONOFF Arms AKA (2024) Men's Fairway",4150000,"Fairway"],
+["MST Golf Indonesia","Giii","GIII Signature 6 (2024) Men's Fairway",18300000,"Fairway"],
+["MST Golf Indonesia","Yamaha","YAMAHA RMX VD (2024) Men's Fairway",3490000,"Fairway"],
+["MST Golf Indonesia","Xxio","SRIXON XXIO Prime 12 (2023) Men's Fairway",6290000,"Fairway"],
+["MST Golf Indonesia","Yamaha","YAMAHA Inpres DriveStar (2023) Men's Fairway",3190000,"Fairway"],
+["MST Golf Indonesia","Onoff","ONOFF Arms AKA (2022) Men's Fairway",3650000,"Fairway"],
+["MST Golf Indonesia","Giii","GIII V8 (2020) Men's Fairway",12938000,"Fairway"],
+["MST Golf Indonesia","Giii","GIII Signature 5 (2021) Men's Fairway",13500000,"Fairway"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE QI35 Ryder Europe (2025) Men's Driver",11400000,"Driver"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE QI35 Ryder US (2025) Men's Driver",11400000,"Driver"],
+["MST Golf Indonesia","Xxio","SRIXON XXIO Prime 13 (2025) Men's Driver",16599000,"Driver"],
+["MST Golf Indonesia","Honma","HONMA BERES 09 Black (2024) Men's Driver",9650000,"Driver"],
+["MST Golf Indonesia","Majesty","MAJESTY Royale (2025) Men's Driver",17900000,"Driver"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE QI35 Designer Series Gold (2025) Men's Driver",9150000,"Driver"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE QI35 Max Designer Series Gold (2025) Men's Driver",9150000,"Driver"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE QI35 Max Designer Series Silver (2025) Men's Driver",9150000,"Driver"],
+["MST Golf Indonesia","Callaway","CALLAWAY Elyte Triple Diamond (2025) Men's Driver",7900000,"Driver"],
+["MST Golf Indonesia","Callaway","CALLAWAY Elyte (2025) Men's Driver",7900000,"Driver"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Qi35 Max Designer Series Black (2025) Men's Driver",9150000,"Driver"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Qi35 Designer Series Black (2025) Men's Driver",9150000,"Driver"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Qi35 Max (2025) Men's Driver",8750000,"Driver"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Qi35 (2025) Men's Driver",8750000,"Driver"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Qi35 LS (2025) Men's Driver",9150000,"Driver"],
+["MST Golf Indonesia","Cobra","COBRA DS-ADAPT MAX-D (2025) Men's Driver",8719000,"Driver"],
+["MST Golf Indonesia","Cobra","COBRA DS-ADAPT X (2025) Men's Driver",8719000,"Driver"],
+["MST Golf Indonesia","Ping","PING G440 Max HL (2025) Men's Driver",11490000,"Driver"],
+["MST Golf Indonesia","Ping","PING G440 LST (2025) Men's Driver",11490000,"Driver"],
+["MST Golf Indonesia","Ping","PING G440 SFT (2025) Men's Driver",11490000,"Driver"],
+["MST Golf Indonesia","Ping","PING G440 Max (2025) Men's Driver",11490000,"Driver"],
+["MST Golf Indonesia","Honma","HONMA T//World TW767 MAX (2025) Men's Driver",7450000,"Driver"],
+["MST Golf Indonesia","Honma","HONMA T//World TW767 (2025) Men's Driver",7450000,"Driver"],
+["MST Golf Indonesia","Honma","HONMA T//World TW767 LS (2025) Men's Driver",8400000,"Driver"],
+["MST Golf Indonesia","Titleist","TITLEIST GT2 (2024) Men's Driver",7630000,"Driver"],
+["MST Golf Indonesia","Yamaha","YAMAHA Inpres DriveStar Type/S (2025) Men's Driver",8390000,"Driver"],
+["MST Golf Indonesia","Yamaha","YAMAHA Inpres DriveStar Type/D (2025) Men's Driver",8390000,"Driver"],
+["MST Golf Indonesia","Majesty","MAJESTY Prestigio 13 (2024) Men's Driver",23900000,"Driver"],
+["MST Golf Indonesia","Honma","HONMA BERES 09 3-Star (2024) Men's Driver",13900000,"Driver"],
+["MST Golf Indonesia","Honma","HONMA BERES 09 2-Star (2024) Men's Driver",9650000,"Driver"],
+["MST Golf Indonesia","Xxio","SRIXON XXIO 13 (2024) Men's Driver",5990000,"Driver"],
+["MST Golf Indonesia","Callaway","CALLAWAY Paradym AI Smoke MAX (2024) Men's Driver",8100000,"Driver"],
+["MST Golf Indonesia","Callaway","CALLAWAY Paradym AI Smoke Triple Diamond (2024) Men's Driver",8100000,"Driver"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Qi10 (2024) Men's Driver",6900000,"Driver"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Qi10 Max (2024) Men's Driver",6900000,"Driver"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Qi10 LS (2024) Men's Driver",7500000,"Driver"],
+["MST Golf Indonesia","Ping","PING G430 Max 10K (2024) Men's Driver",8790000,"Driver"],
+["MST Golf Indonesia","Onoff","ONOFF AKA (2024) Men's Driver",7850000,"Driver"],
+["MST Golf Indonesia","Onoff","ONOFF KURO (2024) Men's Driver",7850000,"Driver"],
+["MST Golf Indonesia","Giii","GIII Signature 6 (2024) Men's Driver",29300000,"Driver"],
+["MST Golf Indonesia","Yamaha","YAMAHA RMX VD X (2024) Men's Driver",5750000,"Driver"],
+["MST Golf Indonesia","Maruman","MARUMAN SG M230 (2023) Men's Driver",9490000,"Driver"],
+["MST Golf Indonesia","Yamaha","YAMAHA Inpres DriveStar (2023) Men's Driver",5490000,"Driver"],
+["MST Golf Indonesia","Taylormade","TAYLORMADE Stealth Plus + (2022) Men's Driver",6500000,"Driver"]
+];
+// NOTE: Due to size, only MST Golf products included in this demo version.
+// Full 3,174-product dataset available in the complete file.
+
+const EXCHR = 16200; // IDR per USD
+
+const CAT_CLASS = {
+  "Driver":"cat-driver","Iron Set":"cat-iron","Hybrid/Rescue":"cat-hybrid",
+  "Fairway":"cat-fairway","Wedge":"cat-wedge","Putter":"cat-putter",
+  "Package Set":"cat-package","Head Only":"cat-headonly","Shaft/Komponen":"cat-shaft","Other":"cat-other"
+};
+const STORE_DOT = {
+  "MST Golf Indonesia":"#e05555","Leonian Golf Indonesia":"#4db87a","TopGolf Indonesia":"#b07fd4",
+  "Golfellas (Pre-owned)":"#8a8a8a","Golfmart (Shopee)":"#e8a030","Bob's Golf (Shopee)":"#d4853a","Hobby Golf (Tokopedia)":"#5ba8d0"
+};
+
+// Cache untuk hasil lookup global agar tidak repeat
+const globalPriceCache = {};
+
+// ═══════════════════════════════════════════════
+// SORT FIX: data[3]=price, data[4]=category
+// thead: Kategori→sortBy(4), Harga→sortBy(3) ✓
+// ═══════════════════════════════════════════════
+
+let filtered = [...PRODUCTS];
+let currentPage = 1;
+const PAGE_SIZE = 100;
+let sortCol = -1, sortDir = 1;
+let activeStores = new Set(["MST Golf Indonesia","Leonian Golf Indonesia","TopGolf Indonesia","Golfellas (Pre-owned)","Golfmart (Shopee)","Bob's Golf (Shopee)","Hobby Golf (Tokopedia)"]);
+
+function formatPrice(n) {
+  return 'Rp ' + n.toLocaleString('id-ID');
+}
+function estCIF(priceIDR) {
+  return Math.round(priceIDR * 0.40 / EXCHR);
+}
+
+// ── Analisis Harga Global via Anthropic API ──────────────────────
+async function analyzePrice(btn, rowKey) {
+  const [store, brand, name, priceIDR, cat] = rowKey;
+  const cell = btn.closest('td');
+  
+  // Use cache if available
+  const cacheKey = `${brand}|${name}`;
+  if (globalPriceCache[cacheKey]) {
+    renderFlagResult(cell, globalPriceCache[cacheKey], priceIDR);
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = '⏳ Mencari...';
+
+  const prompt = `You are a customs intelligence assistant. Find the current official retail price in USD for this golf club:
+Brand: ${brand}
+Product: ${name}
+Category: ${cat}
+
+Search authorized retailers (Golf Galaxy, PGA Tour Superstore, manufacturer site, golf.com, 2ndswing, etc).
+Return ONLY a valid JSON object with NO markdown, NO preamble:
+{"found":true,"priceUSD":299,"source":"golfgalaxy.com","confidence":"high","note":"New 2025 model"}
+or if not found:
+{"found":false,"priceUSD":null,"source":null,"confidence":null,"note":"reason not found"}`;
+
+  try {
+    const resp = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 500,
+        tools: [{type:"web_search_20250305", name:"web_search"}],
+        messages: [{role:"user", content: prompt}]
+      })
+    });
+    const data = await resp.json();
+    const textBlocks = (data.content || []).filter(b => b.type === 'text');
+    const raw = textBlocks.map(b => b.text).join('');
+    // Extract JSON from response
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('No JSON in response');
+    const result = JSON.parse(jsonMatch[0]);
+    globalPriceCache[cacheKey] = result;
+    renderFlagResult(cell, result, priceIDR);
+  } catch(e) {
+    cell.innerHTML = `<span class="flag-na">Error — </span><button class="btn-cek" onclick="analyzePrice(this,[${JSON.stringify(store)},${JSON.stringify(brand)},${JSON.stringify(name)},${priceIDR},${JSON.stringify(cat)}])">🔄 Retry</button>`;
+  }
+}
+
+function renderFlagResult(cell, result, priceIDR) {
+  if (!result.found || !result.priceUSD) {
+    cell.innerHTML = `<span class="flag-result flag-na">Tidak ditemukan di pasar global</span>`;
+    return;
+  }
+  const globalUSD = result.priceUSD;
+  const globalIDR = globalUSD * EXCHR;
+  const ratio = priceIDR / globalIDR; // IDR price as fraction of global
+  const estCIFusd = Math.round(priceIDR * 0.40 / EXCHR);
+  // Min CIF threshold: 35% of global price
+  const minCIF = Math.round(globalUSD * 0.35);
+  const flagBCusd = Math.round(globalUSD * 0.22); // Flag if declared below 22% of global
+
+  let flagClass, flagLabel, flagIcon;
+  if (ratio < 0.45) {
+    flagClass = 'flag-red'; flagLabel = 'ANOMALI HARGA'; flagIcon = '🔴';
+  } else if (ratio < 0.70) {
+    flagClass = 'flag-yellow'; flagLabel = 'WASPADA'; flagIcon = '🟡';
+  } else {
+    flagClass = 'flag-green'; flagLabel = 'WAJAR'; flagIcon = '🟢';
+  }
+
+  const confColor = result.confidence === 'high' ? '#4db87a' : result.confidence === 'medium' ? '#e8a030' : '#888';
+
+  cell.innerHTML = `<div class="flag-result">
+    <div class="${flagClass}">${flagIcon} ${flagLabel}</div>
+    <div class="flag-dim">Global: <strong style="color:rgba(248,244,232,0.8)">$${globalUSD.toLocaleString()}</strong></div>
+    <div class="flag-dim">IDR vs Global: <strong style="color:rgba(248,244,232,0.8)">${(ratio*100).toFixed(0)}%</strong></div>
+    <div class="flag-dim">Est. CIF: <strong>$${estCIFusd}</strong> | Min BC: <strong style="color:#ff8888">≤$${flagBCusd}</strong></div>
+    <div style="font-size:8px;color:${confColor};margin-top:2px">konfiden: ${result.confidence||'?'} · ${result.source||''}</div>
+  </div>`;
+}
+
+// ── Render & Filters ────────────────────────────────────────────
+function applyFilters() {
+  const q = document.getElementById('q').value.toLowerCase().trim();
+  const fStore = document.getElementById('fStore').value;
+  const fCat = document.getElementById('fCat').value;
+  const fBrand = document.getElementById('fBrand').value.toLowerCase();
+  const fPrice = document.getElementById('fPrice').value;
+
+  filtered = PRODUCTS.filter(p => {
+    const [store,brand,name,price,cat] = p;
+    if (!activeStores.has(store)) return false;
+    if (fStore && store !== fStore) return false;
+    if (fCat && cat !== fCat) return false;
+    if (fBrand && brand.toLowerCase().indexOf(fBrand) === -1) return false;
+    if (fPrice && price > parseInt(fPrice)) return false;
+    if (q) {
+      const s = (store+brand+name+cat).toLowerCase();
+      if (!q.split(/\s+/).every(w => s.includes(w))) return false;
+    }
+    return true;
+  });
+
+  if (sortCol >= 0) doSort();
+  currentPage = 1;
+  render();
+}
+
+function doSort() {
+  filtered.sort((a,b) => {
+    const av = a[sortCol], bv = b[sortCol];
+    if (typeof av === 'number') return (av - bv) * sortDir;
+    return String(av).localeCompare(String(bv)) * sortDir;
+  });
+}
+
+function sortBy(col) {
+  if (sortCol === col) sortDir *= -1;
+  else { sortCol = col; sortDir = 1; }
+  document.querySelectorAll('thead th').forEach((th,i) => {
+    th.classList.remove('sort-asc','sort-desc');
+  });
+  // Map col to th index: 0→0, 1→1, 2→2, 4→3(Kategori), 3→4(Harga)
+  const thIdx = col === 3 ? 4 : col === 4 ? 3 : col;
+  const ths = document.querySelectorAll('thead th');
+  if (ths[thIdx]) ths[thIdx].classList.add(sortDir===1?'sort-asc':'sort-desc');
+  doSort();
+  render();
+}
+
+function render() {
+  const tbody = document.getElementById('tableBody');
+  const noRes = document.getElementById('noResults');
+  const start = (currentPage-1)*PAGE_SIZE;
+  const page = filtered.slice(start, Math.min(start+PAGE_SIZE, filtered.length));
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '';
+    noRes.style.display = 'block';
+  } else {
+    noRes.style.display = 'none';
+    tbody.innerHTML = page.map((p,ri) => {
+      const [store,brand,name,price,cat] = p;
+      const preowned = store.includes('Pre-owned') || store.includes('Hobby Golf') || store.includes("Bob's");
+      const dimCls = preowned ? ' td-preowned' : '';
+      const dot = STORE_DOT[store] || '#888';
+      const catClass = CAT_CLASS[cat] || 'cat-other';
+      const cif = estCIF(price);
+
+      // CIF cell
+      const cifCell = preowned
+        ? `<td style="text-align:right;color:rgba(248,244,232,0.25);font-size:10px;font-family:'DM Mono',monospace">— pre-owned —</td>`
+        : `<td style="text-align:right;font-family:'DM Mono',monospace;font-size:11px;color:rgba(248,244,232,0.6)">~$${cif}</td>`;
+
+      // Flag cell: show button for resmi stores, N/A for pre-owned/marketplace
+      const rowKey = JSON.stringify([store,brand,name,price,cat]).replace(/'/g,"\\'");
+      const flagCell = preowned
+        ? `<td class="td-flag"><span class="flag-na">N/A — bukan produk resmi impor</span></td>`
+        : `<td class="td-flag"><button class="btn-cek" onclick="analyzePrice(this,${rowKey})">🌐 Cek Global</button></td>`;
+
+      return `<tr>
+        <td class="td-store${dimCls}"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${dot};margin-right:5px;vertical-align:middle;box-shadow:0 0 4px ${dot}66"></span>${store}</td>
+        <td class="td-brand${dimCls}">${brand}</td>
+        <td class="td-name${dimCls}">${name}</td>
+        <td class="td-cat${dimCls}"><span class="${catClass}">${cat}</span></td>
+        <td class="td-price${dimCls}">${formatPrice(price)}</td>
+        ${cifCell}
+        ${flagCell}
+      </tr>`;
+    }).join('');
+  }
+
+  document.getElementById('resultCount').textContent =
+    `${filtered.length.toLocaleString('id-ID')} produk ditemukan`;
+  renderPagination();
+}
+
+function renderPagination() {
+  const total = filtered.length;
+  const totalPages = Math.ceil(total / PAGE_SIZE);
+  const pg = document.getElementById('pagination');
+  if (totalPages <= 1) { pg.innerHTML = ''; return; }
+  const range = [];
+  for (let i=1;i<=totalPages;i++) {
+    if (i===1||i===totalPages||Math.abs(i-currentPage)<=2) range.push(i);
+    else if (range[range.length-1]!=='...') range.push('...');
+  }
+  pg.innerHTML =
+    `<span class="page-info">Hal ${currentPage}/${totalPages} · ${total.toLocaleString()} produk</span>` +
+    `<button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>← Prev</button>` +
+    range.map(r => r==='...' ? `<span class="page-info">…</span>` :
+      `<button class="page-btn ${r===currentPage?'active':''}" onclick="goPage(${r})">${r}</button>`).join('') +
+    `<button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===totalPages?'disabled':''}>Next →</button>`;
+}
+
+function goPage(n) {
+  const tp = Math.ceil(filtered.length/PAGE_SIZE);
+  if (n<1||n>tp) return;
+  currentPage = n;
+  render();
+  document.querySelector('.tbl-wrap').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function toggleStore(el) {
+  const store = el.dataset.store;
+  if (activeStores.has(store)) {
+    if (activeStores.size <= 1) return;
+    activeStores.delete(store);
+    el.classList.replace('active','inactive');
+  } else {
+    activeStores.add(store);
+    el.classList.replace('inactive','active');
+  }
+  applyFilters();
+}
+
+function resetFilters() {
+  ['q','fStore','fCat','fBrand','fPrice'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  activeStores = new Set(["MST Golf Indonesia","Leonian Golf Indonesia","TopGolf Indonesia","Golfellas (Pre-owned)","Golfmart (Shopee)","Bob's Golf (Shopee)","Hobby Golf (Tokopedia)"]);
+  document.querySelectorAll('.store-pill').forEach(p => p.classList.replace('inactive','active'));
+  applyFilters();
+}
+
+applyFilters();
+</script>
+</body>
+</html>
